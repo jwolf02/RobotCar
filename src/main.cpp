@@ -36,7 +36,7 @@ int main(int argc, const char *argv[]) {
 	auto bridge = L298NHBridge(ENA, IN1, IN2, IN3, IN4, ENB);
 
 	char c;
-	while ((c = getch()) != 0x00 && c != 'q') {
+	while ((c = getch()) != 0x00 && c != 'x') {
 		switch (c) {
 			case 'd': {
 				if (operation == DRIVE && motor_a_speed < .99) {
@@ -58,7 +58,7 @@ int main(int argc, const char *argv[]) {
 					motor_b_speed = -STEP;
 				}
 				break;
-			} case 'w': {
+			} case 's': {
 				if (operation == ROTATE && motor_a_speed < 0.99) {
 					motor_a_speed += STEP;
 					motor_b_speed -= STEP;
@@ -68,7 +68,7 @@ int main(int argc, const char *argv[]) {
 					motor_b_speed = -STEP;
 				}
 				break;
-			} case 's': {
+			} case 'w': {
 				if (operation == ROTATE && motor_a_speed > -0.99) {
 					motor_a_speed -= STEP;
 					motor_b_speed += STEP;
@@ -78,7 +78,7 @@ int main(int argc, const char *argv[]) {
 					motor_b_speed = STEP;
 				}
 				break;
-			} case 'x' : {
+			} case 'q' : {
 				operation = DRIVE;
 				motor_a_speed = 0.0;
 				motor_b_speed = 0.0;
