@@ -13,5 +13,5 @@ set(SOURCES		src/terminal.cpp
 
 add_executable(controller ${HEADERS} ${SOURCES})
 target_include_directories(controller PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
-target_link_libraries(controller PUBLIC wiringpi)
+target_link_libraries(controller PUBLIC wiringPi)
 
