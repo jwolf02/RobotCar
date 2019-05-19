@@ -7,7 +7,7 @@
 #define DRIVE		0
 #define ROTATE		1
 
-#define STEP		0.2
+#define STEP		1.0
 
 // H-Bridge pins
 int ENA = 20;
