@@ -62,7 +62,7 @@ void L298NHBridge::setMotorA(double speed) const {
   }
 
   if (speed != 0.0)
-    softPwmWrite(ENA, (int) (ABS(speed) * (1.0 - min_speed) + min_speed) * 100);
+    softPwmWrite(ENA, (int) ((ABS(speed) * (1.0 - min_speed) + min_speed) * 100));
   else
     softPwmWrite(ENA, 0);
 }
@@ -83,7 +83,7 @@ void L298NHBridge::setMotorB(double speed) const {
   }
 
   if (speed != 0.0)
-    softPwmWrite(ENB, (int) (ABS(speed) * (1.0 - min_speed) + min_speed) * 100);
+    softPwmWrite(ENB, (int) ((ABS(speed) * (1.0 - min_speed) + min_speed) * 100));
   else
     softPwmWrite(ENB, 0);
 }
