@@ -38,7 +38,7 @@ int main(int argc, const char *argv[]) {
 	char c;
 	while ((c = getch()) != 0x00 && c != 'q') {
 		switch (c) {
-			case 'w': {
+			case 'd': {
 				if (operation == DRIVE && motor_a_speed < .99) {
 					motor_a_speed += STEP;
 					motor_b_speed += STEP;
@@ -48,7 +48,7 @@ int main(int argc, const char *argv[]) {
 					motor_b_speed = STEP;
 				}
 				break;
-			} case 's': {
+			} case 'a': {
 				if (operation == DRIVE && motor_a_speed > -0.99) {
 					motor_a_speed -= STEP;
 					motor_b_speed -= STEP;
@@ -58,7 +58,7 @@ int main(int argc, const char *argv[]) {
 					motor_b_speed = -STEP;
 				}
 				break;
-			} case 'a': {
+			} case 'w': {
 				if (operation == ROTATE && motor_a_speed < 0.99) {
 					motor_a_speed += STEP;
 					motor_b_speed -= STEP;
@@ -68,7 +68,7 @@ int main(int argc, const char *argv[]) {
 					motor_b_speed = -STEP;
 				}
 				break;
-			} case 'd': {
+			} case 's': {
 				if (operation == ROTATE && motor_a_speed > -0.99) {
 					motor_a_speed -= STEP;
 					motor_b_speed += STEP;
