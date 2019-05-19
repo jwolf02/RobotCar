@@ -22,7 +22,8 @@ void enableRawMode() {
 
 char getch() {
         char c;
-        read(STDIN_FILENO, &c, 1);
+        if (!read(STDIN_FILENO, &c, 1))
+		return 0x00;
         return c;
 }
 
