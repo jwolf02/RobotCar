@@ -10,12 +10,12 @@
 #define STEP		0.2
 
 // H-Bridge pins
-int ENA = 0;
-int IN1 = 0;
-int IN2 = 0;
-int IN3 = 0;
-int IN4 = 0;
-int ENB = 0;
+int ENA = 20;
+int IN1 = 6;
+int IN2 = 13;
+int IN3 = 19;
+int IN4 = 26;
+int ENB = 21;
 
 void printMenu(int operation, double left_speed, double right_speed) {
 	clear();
