@@ -1,7 +1,7 @@
 #ifndef __CLIENTSOCKET_HPP
 #define __CLIENTSOCKET_HPP
 
-#include <net/Socket.hpp>
+#include <Socket.hpp>
 #include <string>
 #include <netinet/in.h>
 

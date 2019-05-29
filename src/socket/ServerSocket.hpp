@@ -1,7 +1,7 @@
 #ifndef __SERVERSOCKET_HPP
 #define __SERVERSOCKET_HPP
 
-#include <net/Socket.hpp>
+#include <Socket.hpp>
 #include <cstring>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -19,7 +19,7 @@ public:
 
 	ServerSocket();
 
-	ServerSocket(int port);
+	explicit ServerSocket(int port);
 
 	virtual ~ServerSocket();
 
@@ -29,7 +29,7 @@ private:
 
 	int connfd = 0;
 
-	struct sockaddr_in serv_addr;
+	struct sockaddr_in address;
 
 };
 

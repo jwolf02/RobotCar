@@ -1,5 +1,5 @@
 #include <iostream>
-#include <net/ClientSocket.hpp>
+#include <ClientSocket.hpp>
 #include <cstring>
 #include <string>
 #include <terminal.hpp>

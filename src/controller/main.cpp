@@ -3,14 +3,13 @@
 #include <cstdio>
 #include <cstdlib>
 //#include <L298NHBridge.hpp>
-#include <net/ServerSocket.hpp>
+#include <ServerSocket.hpp>
+#include <iostream>
 
 #define DRIVE		0
 #define ROTATE		1
 
 #define STEP		0.2
-
-#define PORT        22222
 
 // H-Bridge pins
 int ENA = 20;
@@ -29,28 +28,22 @@ void printMenu(int operation, double left_speed, double right_speed) {
 }
 
 int main(int argc, const char *argv[]) {
-	// get unbuffered keyboard input
-	// enableRawMode();	
+
+	if (argc < 2) {
+	    std::cout << "Usage: " << argv[0] << " <port>" << std::endl;
+	    exit(1);
+	}
+
+    // get unbuffered keyboard input
+    // enableRawMode();
+
+	int port = strtol(argv[1], nullptr, 10);
 
 	printf("wait for connection...\n");
-	auto socket = ServerSocket(PORT);
+	auto socket = ServerSocket(port);
 	socket.waitForConnection();
 
 	printf("connection established\n");
-	char d = 0;
-	size_t n;
-	try {
-        while ((n = socket.recv(&d, 1)) > 0 && d != 'x') {
-            printf("%ld pressed %x\n", n, d);
-        }
-        printf("%x\n\r", d);
-	} catch (std::exception &e) {
-	    printf("%s\n\r", e.what());
-	}
-
-	printf("connection closed\n");
-	socket.close();
-	return 0;
 
 	// setup defaults
 	double motor_a_speed = 0.0, motor_b_speed = 0.0;
@@ -59,7 +52,7 @@ int main(int argc, const char *argv[]) {
 	//auto bridge = L298NHBridge(ENA, IN1, IN2, IN3, IN4, ENB);
 
 	char c;
-	while ((c = terminal::getch()) != 0x00 && c != 'x') {
+	while ((socket.recv(&c, 1)) != 0x00 && c != 'x') {
 		switch (c) {
 			case 'a': {
 				if (operation == DRIVE && motor_a_speed < .99) {
@@ -105,6 +98,8 @@ int main(int argc, const char *argv[]) {
 				operation = DRIVE;
 				motor_a_speed = 0.0;
 				motor_b_speed = 0.0;
+			} default: {
+			    printf("invalid input encountered: %c\n", c);
 			}
 
 		}
@@ -112,7 +107,8 @@ int main(int argc, const char *argv[]) {
 		printMenu(operation, motor_a_speed, motor_b_speed);
 	}
 
-	printf("program terminated\n");
+    printf("connection closed\n");
+    socket.close();
 
 	return 0;
 }

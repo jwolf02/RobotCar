@@ -1,29 +1,32 @@
-#include <net/ServerSocket.hpp>
+#include <ServerSocket.hpp>
 
 ServerSocket::ServerSocket() {
-    memset(&serv_addr, 0x00, sizeof(serv_addr));
+    memset(&address, 0x00, sizeof(address));
 }
 
 ServerSocket::ServerSocket(int port) : ServerSocket() {
-    if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        throw std::runtime_error("creating socket failed");
+
+    portno = port;
+
+    if ((connfd = socket(AF_INET, SOCK_STREAM, 0)) <= 0) {
+        throw std::runtime_error(std::string("socket:") + strerror(errno));
     }
 
     int opt = 1;
-    if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)) < 0) {
-        throw std::runtime_error("setsockopt failed");
+    if (setsockopt(connfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)) < 0) {
+        throw std::runtime_error(std::string("setsockopt:") + strerror(errno));
     }
 
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    serv_addr.sin_port = htons(port);
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = htonl(INADDR_ANY);
+    address.sin_port = htons(portno);
 
-    if (bind(sockfd, (struct sockaddr*) &serv_addr, sizeof(serv_addr)) < 0) {
-        throw std::runtime_error("bind failed");
+    if (bind(connfd, (struct sockaddr*) &address, sizeof(address)) < 0) {
+        throw std::runtime_error(std::string("bind:") + strerror(errno));
     }
 
-    if (listen(sockfd, 1) < 0) {
-        throw std::runtime_error("listen failed");
+    if (listen(connfd, 1) < 0) {
+        throw std::runtime_error(std::string("listen:") + strerror(errno));
     }
 }
 
@@ -32,7 +35,8 @@ ServerSocket::~ServerSocket() {
 }
 
 void ServerSocket::waitForConnection() {
-    if ((connfd = accept(sockfd, (struct sockaddr*) NULL, NULL)) < 0) {
-        throw std::runtime_error("accept failed");
+    constexpr int addrlen = sizeof(address);
+    if ((sockfd = accept(connfd, (struct sockaddr *) &address, (socklen_t *) &addrlen)) < 0) {
+        throw std::runtime_error(std::string("accept:") + strerror(errno));
     }
 }
