@@ -22,14 +22,19 @@ int ENB = 21;
 int main(int argc, const char *argv[]) {
 
 	if (argc < 2) {
-	    std::cout << "Usage: " << argv[0] << " <port>" << std::endl;
+	    std::cout << "Usage: " << argv[0] << "[--bluetooth] <port>" << std::endl;
 	    exit(1);
 	}
 
-	int port = strtol(argv[1], nullptr, 10);
+	Socket::ConnectionType type = Socket::Inet;
+	if (argc > 2 && strcmp(argv[1], "--bluetooth") == 0) {
+	    type = Socket::Bluetooth;
+	}
+
+	int port = strtol(argv[argc - 1], nullptr, 10);
 
 	printf("wait for connection...\n");
-	auto socket = ServerSocket(Socket::Inet, port);
+	auto socket = ServerSocket(type, port);
 	socket.waitForConnection();
 
 	printf("connection established\n");
@@ -101,7 +106,8 @@ int main(int argc, const char *argv[]) {
                 break;
             }
             default: {
-                printf("invalid input encountered: %c\n", c);
+                if (c != 'x')
+                    printf("invalid input encountered: %c\n", c);
             }
         }
 

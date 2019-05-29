@@ -31,8 +31,8 @@ int main(int argc, const char *argv[]) {
 
     auto socket = ClientSocket(type);
 
-	std::string addr = argv[1];
-    int port = strtol(argv[2], nullptr, 10);
+	std::string addr = argv[argc - 2];
+    int port = strtol(argv[argc - 1], nullptr, 10);
 
     std::cout << "connecting to " << addr << ":" << port << std::endl;
     try {

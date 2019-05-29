@@ -12,7 +12,7 @@ set(SOCKET 				src/socket/Socket.hpp
 						src/socket/ClientSocket.hpp
 						src/socket/ClientSocket.cpp
 						src/socket/socket_wrappers.hpp
-						src/socket/socket_wrappers.cpp src/socket/BtSocket.hpp src/socket/BtSocket.cpp)
+						src/socket/socket_wrappers.cpp)
 
 set(SOCKET_INCLUDE		src/socket/Socket.hpp
 						src/socket/ClientSocket.hpp
@@ -29,7 +29,6 @@ set(MONITOR 			src/monitor/main.cpp
 						${SOCKET_INCLUDE})
 
 set(CONTROLLER 			src/controller/main.cpp
-						${TERMINAL}
 						${SOCKET_INCLUDE}
 						${L298NHBRIDGE})
 
