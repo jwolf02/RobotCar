@@ -1,4 +1,4 @@
-#include <ServerSocket.hpp>
+#include <net/ServerSocket.hpp>
 
 ServerSocket::ServerSocket() {
     memset(&serv_addr, 0x00, sizeof(serv_addr));

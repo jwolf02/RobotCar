@@ -1,4 +1,4 @@
-#include <ClientSocket.hpp>
+#include <net/ClientSocket.hpp>
 #include <stdexcept>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -15,6 +15,10 @@ ClientSocket::~ClientSocket() {
 }
 
 void ClientSocket::connect(const std::string &addr, int port) {
+    if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+        throw std::runtime_error("unable to create socket");
+    }
+
     if (inet_pton(AF_INET, addr.c_str(), &serv_addr.sin_addr) < 0) {
         throw std::runtime_error("invalid address");
     }

@@ -1,7 +1,7 @@
 #ifndef __SERVERSOCKET_HPP
 #define __SERVERSOCKET_HPP
 
-#include <Socket.hpp>
+#include <net/Socket.hpp>
 #include <cstring>
 #include <sys/socket.h>
 #include <netinet/in.h>

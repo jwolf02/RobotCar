@@ -1,5 +1,5 @@
 #include <iostream>
-#include <ClientSocket.hpp>
+#include <net/ClientSocket.hpp>
 #include <cstring>
 #include <string>
 #include <terminal.hpp>
@@ -40,6 +40,7 @@ int main(int argc, const char *argv[]) {
 			printf("%s\n\r", e.what());
 		}
 	}
+	printf("%c\n\r", c);
 
 	socket.close();
 

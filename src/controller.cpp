@@ -3,12 +3,14 @@
 #include <cstdio>
 #include <cstdlib>
 //#include <L298NHBridge.hpp>
-#include <ServerSocket.hpp>
+#include <net/ServerSocket.hpp>
 
 #define DRIVE		0
 #define ROTATE		1
 
-#define STEP		1.0
+#define STEP		0.2
+
+#define PORT        22222
 
 // H-Bridge pins
 int ENA = 20;
@@ -31,16 +33,22 @@ int main(int argc, const char *argv[]) {
 	// enableRawMode();	
 
 	printf("wait for connection...\n");
-	auto socket = ServerSocket(2222);
+	auto socket = ServerSocket(PORT);
 	socket.waitForConnection();
 
 	printf("connection established\n");
-	char d;
-	while (socket.recv(&d, 1) == 1 && d == 'i') {
-		printf("pressed %c\n", d);
+	char d = 0;
+	size_t n;
+	try {
+        while ((n = socket.recv(&d, 1)) > 0 && d != 'x') {
+            printf("%ld pressed %x\n", n, d);
+        }
+        printf("%x\n\r", d);
+	} catch (std::exception &e) {
+	    printf("%s\n\r", e.what());
 	}
 
-	printf("connection closed");
+	printf("connection closed\n");
 	socket.close();
 	return 0;
 

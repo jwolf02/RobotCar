@@ -2,17 +2,20 @@ cmake_minimum_required(VERSION 3.5.1)
 project(RobotCar)
 
 set(CMAKE_CXX_STANDARD	11)
-set(CMAKE_CXX_FLAGS	"${CMAKE_CXX_FLAGS} -Wall -pedantic -O2")
+set(CMAKE_CXX_FLAGS		"${CMAKE_CXX_FLAGS} -Wall -pedantic -O2 -march=native -mtune=native")
 
-set(SERVER_SOCKET		src/Socket.hpp
-						src/Socket.cpp
-						src/ServerSocket.hpp
-						src/ServerSocket.cpp)
+set(l298NHBRIDGE		src/L298NHBridge.hpp
+						src/L298NHBridge.cpp)
 
-set(CLIENT_SOCKET		src/Socket.hpp
-						src/Socket.cpp
-						src/ClientSocket.hpp
-						src/ClientSocket.cpp)
+set(SERVER_SOCKET src/socket/Socket.hpp
+        src/socket/Socket.cpp
+        src/socket/ServerSocket.hpp
+        src/socket/ServerSocket.cpp)
+
+set(CLIENT_SOCKET src/socket/Socket.hpp
+        src/socket/Socket.cpp
+        src/socket/ClientSocket.hpp
+        src/socket/ClientSocket.cpp)
 
 set(TERMINAL			src/terminal.hpp
 						src/terminal.cpp)
