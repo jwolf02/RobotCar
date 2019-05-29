@@ -1,7 +1,14 @@
 #ifndef __SOCKET_HPP
 #define __SOCKET_HPP
 
+// This is the base class for both the socket on the server
+// as well as on the client side one.
+// It cannot itself establish a connection as this is highly
+// dependant on the type of connection but it can send and receive
+// data and close the connection
+
 #include <cstddef>
+#include <unordered_map>
 
 class Socket {
 public:
@@ -25,15 +32,6 @@ public:
     // close socket
     virtual void close();
 
-    // set if connection speed should be measured
-    void setSpeedMeasurement(bool tracking);
-
-    // get if speed measurement is turned on
-    bool speedMeasurement() const;
-
-    // get the measured speed
-    double lastMeasuredSpeed() const;
-
     int port() const;
 
     int channel() const;
@@ -45,14 +43,16 @@ protected:
     // socket file descriptor
     int sockfd = 0;
 
-    bool speed_measurement = false;
-
-    double last_measured_speed = 0.0;
-
     int portno = -1;
 
     int channelno = -1;
 
 };
+
+namespace BluetoothSocket {
+
+    std::unordered_map<std::string, std::string> scan_for_devices();
+
+}
 
 #endif // __SOCKET_HPP

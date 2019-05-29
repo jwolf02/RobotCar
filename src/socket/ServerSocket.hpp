@@ -31,10 +31,6 @@ public:
 
 private:
 
-    void createInetSocket(int port);
-
-    void createBtSocket(int channel);
-
 	int connfd = 0;
 
 	struct sockaddr_in inet_address = { 0 };

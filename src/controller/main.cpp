@@ -26,13 +26,10 @@ int main(int argc, const char *argv[]) {
 	    exit(1);
 	}
 
-    // get unbuffered keyboard input
-    // enableRawMode();
-
 	int port = strtol(argv[1], nullptr, 10);
 
 	printf("wait for connection...\n");
-	auto socket = ServerSocket(port);
+	auto socket = ServerSocket(Socket::Inet, port);
 	socket.waitForConnection();
 
 	printf("connection established\n");

@@ -20,22 +20,27 @@ void printMenu(int operation, double speed) {
 int main(int argc, const char *argv[]) {
 
 	if (argc < 3) {
-		std::cout << "Usage: " << argv[0] << " <address> <port>" << std::endl;
+		std::cout << "Usage: " << argv[0] << "[--bluetooth] <address> <port/channel>" << std::endl;
 		return 1;
 	}
 
-	std::string addr = argv[1];
-	int port = strtol(argv[2], nullptr, 10);
-
-	std::cout << "connecting to " << addr << ":" << port << std::endl;
-
-	auto socket = ClientSocket();
-	try {
-		socket.connect(addr, port);
-	} catch (std::exception &e) {
-		std::cout << e.what() << std::endl;
-		exit(1);
+	Socket::ConnectionType type = Socket::Inet;
+	if (argc > 3 && strcmp(argv[1], "--bluetooth") == 0) {
+	    type = Socket::Bluetooth;
 	}
+
+    auto socket = ClientSocket(type);
+
+	std::string addr = argv[1];
+    int port = strtol(argv[2], nullptr, 10);
+
+    std::cout << "connecting to " << addr << ":" << port << std::endl;
+    try {
+        socket.connect(addr, port);
+    } catch (std::exception &e) {
+        std::cout << e.what() << std::endl;
+        exit(1);
+    }
 
 	std::cout << "connection established" << std::endl;
 

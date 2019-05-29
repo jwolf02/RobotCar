@@ -4,19 +4,25 @@
 #include <Socket.hpp>
 #include <string>
 #include <netinet/in.h>
+#include <bluetooth/bluetooth.h>
+#include <bluetooth/rfcomm.h>
 
 class ClientSocket : public Socket {
 public:
 
 	ClientSocket() = default;
 
+	ClientSocket(Socket::ConnectionType type);
+
 	~ClientSocket();
 
-	void connect(const std::string &addr, int port);
+	void connect(const std::string &addr, int port_or_channel);
 
 private:
 
-	struct sockaddr_in serv_addr = { 0 };
+	struct sockaddr_in inet_address = { 0 };
+
+	struct sockaddr_rc bt_address = { 0 };
 
 };
 
