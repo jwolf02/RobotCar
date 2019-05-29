@@ -7,10 +7,7 @@
 #include <cstdio>
 #include <cstring>
 #include <errno.h>
-
-static inline int connect_call(int fd, struct sockaddr *addr, size_t size) {
-    return connect(fd, addr, size);
-}
+#include <socket_wrappers.hpp>
 
 ClientSocket::~ClientSocket() {
     close();
@@ -31,7 +28,7 @@ void ClientSocket::connect(const std::string &addr, int port) {
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(portno);
 
-    if (connect_call(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
+    if (connect_wrapper(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
         throw std::runtime_error(std::string("connect:") + strerror(errno));
     }
 }

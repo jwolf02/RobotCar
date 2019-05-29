@@ -16,7 +16,7 @@ public:
 
 private:
 
-	struct sockaddr_in serv_addr;
+	struct sockaddr_in serv_addr = { 0 };
 
 };
 

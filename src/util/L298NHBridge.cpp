@@ -1,4 +1,4 @@
-#include <util/L298NHBridge.hpp>
+#include <L298NHBridge.hpp>
 #include <wiringPi.h>
 #include <softPwm.h>
 #include <stdexcept>

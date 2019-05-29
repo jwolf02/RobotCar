@@ -5,6 +5,10 @@
 
 class Socket {
 public:
+    // the type of connection that is created
+    enum ConnectionType {
+        Inet, Bluetooth
+    };
 
     // default constructor
     Socket() = default;
@@ -32,7 +36,11 @@ public:
 
     int port() const;
 
+    int channel() const;
+
 protected:
+
+    ConnectionType conn_type = Inet;
 
     // socket file descriptor
     int sockfd = 0;
@@ -42,6 +50,8 @@ protected:
     double last_measured_speed = 0.0;
 
     int portno = -1;
+
+    int channelno = -1;
 
 };
 

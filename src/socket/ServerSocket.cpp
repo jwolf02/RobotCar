@@ -1,32 +1,12 @@
 #include <ServerSocket.hpp>
+#include <socket_wrappers.hpp>
+#include <bluetooth/bluetooth.h>
 
-ServerSocket::ServerSocket() {
-    memset(&address, 0x00, sizeof(address));
-}
-
-ServerSocket::ServerSocket(int port) : ServerSocket() {
-
-    portno = port;
-
-    if ((connfd = socket(AF_INET, SOCK_STREAM, 0)) <= 0) {
-        throw std::runtime_error(std::string("socket:") + strerror(errno));
-    }
-
-    int opt = 1;
-    if (setsockopt(connfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)) < 0) {
-        throw std::runtime_error(std::string("setsockopt:") + strerror(errno));
-    }
-
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = htonl(INADDR_ANY);
-    address.sin_port = htons(portno);
-
-    if (bind(connfd, (struct sockaddr*) &address, sizeof(address)) < 0) {
-        throw std::runtime_error(std::string("bind:") + strerror(errno));
-    }
-
-    if (listen(connfd, 1) < 0) {
-        throw std::runtime_error(std::string("listen:") + strerror(errno));
+ServerSocket::ServerSocket(Socket::ConnectionType type, int port_or_channel) {
+    if (type == Socket::Inet) {
+        createInetSocket(port_or_channel);
+    } else {
+        createBtSocket(port_or_channel);
     }
 }
 
@@ -35,8 +15,66 @@ ServerSocket::~ServerSocket() {
 }
 
 void ServerSocket::waitForConnection() {
-    constexpr int addrlen = sizeof(address);
-    if ((sockfd = accept(connfd, (struct sockaddr *) &address, (socklen_t *) &addrlen)) < 0) {
-        throw std::runtime_error(std::string("accept:") + strerror(errno));
+    int addrlen = conn_type == Socket::Inet ? sizeof(inet_address) : sizeof(bt_address);
+    struct sockaddr *addr = conn_type == Socket::Inet ? (struct sockaddr *) &inet_address : (struct sockaddr *) &bt_address;
+
+    if ((sockfd = accept(connfd, addr, (socklen_t *) &addrlen)) < 0) {
+        throw std::runtime_error(std::string("accept: ") + strerror(errno));
+    }
+}
+
+void ServerSocket::close() {
+    close_wrapper(connfd);
+}
+
+void ServerSocket::createInetSocket(int port) {
+
+    portno = port;
+
+    if ((connfd = socket(AF_INET, SOCK_STREAM, 0)) <= 0) {
+        throw std::runtime_error(std::string("socket: ") + strerror(errno));
+    }
+
+    int opt = 1;
+    if (setsockopt(connfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)) < 0) {
+        throw std::runtime_error(std::string("setsockopt: ") + strerror(errno));
+    }
+
+    inet_address.sin_family = AF_INET;
+    inet_address.sin_addr.s_addr = htonl(INADDR_ANY);
+    inet_address.sin_port = htons(portno);
+
+    if (bind(connfd, (struct sockaddr*) &inet_address, sizeof(inet_address)) < 0) {
+        throw std::runtime_error(std::string("bind: ") + strerror(errno));
+    }
+
+    if (listen(connfd, 1) < 0) {
+        throw std::runtime_error(std::string("listen: ") + strerror(errno));
+    }
+}
+
+void ServerSocket::createBtSocket(int channel) {
+
+    channelno = channel;
+
+    if ((connfd = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM)) <= 0) {
+        throw std::runtime_error(std::string("socket:") + strerror(errno));
+    }
+
+    int opt = 1;
+    if (setsockopt(connfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)) < 0) {
+        throw std::runtime_error(std::string("setsockopt:") + strerror(errno));
+    }
+
+    bt_address.rc_family = AF_BLUETOOTH;
+    bt_address.rc_bdaddr = *BDADDR_ANY;
+    bt_address.rc_channel = (uint8_t) channel;
+
+    if (bind(connfd, (struct sockaddr*) &bt_address, sizeof(bt_address)) < 0) {
+        throw std::runtime_error(std::string("bind: ") + strerror(errno));
+    }
+
+    if (listen(connfd, 1) < 0) {
+        throw std::runtime_error(std::string("listen: ") + strerror(errno));
     }
 }

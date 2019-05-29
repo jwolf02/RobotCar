@@ -6,6 +6,17 @@
 #include <cstdio>
 #include <cstdlib>
 
+// operation modes
+#define DRIVE		0
+#define ROTATE		1
+
+void printMenu(int operation, double speed) {
+    terminal::clear();
+    const char *op = operation ? "ROTATE" : "DRIVE";
+    printf("operation:\t %s\n\r", op);
+    printf("speed:\t %.0f%%\n\r", speed * 100);
+}
+
 int main(int argc, const char *argv[]) {
 
 	if (argc < 3) {
@@ -31,17 +42,32 @@ int main(int argc, const char *argv[]) {
 	terminal::set_echo_off();
 	terminal::set_canonical_off();
 
+	printMenu(0, 0);
+
 	char c;
-	while ((c = terminal::getch()) != 0x00 && c != 'x') {
+	while ((c = terminal::getch()) != 0x00) {
+        double speed = 0.0;
+        uint32_t operation = DRIVE;
+
 		try {
-			printf("pressed %c\n\r", c);
+		    // send input
 			socket.send(&c, 1);
+
+			// receive speed and mode of operation
+			socket.recv(&speed, sizeof(speed));
+			socket.recv(&operation, sizeof(operation));
+
 		} catch (std::exception &e) {
 			printf("%s\n\r", e.what());
 		}
-	}
-	printf("%c\n\r", c);
 
+		printMenu(operation, speed);
+
+		if (c == 'x')
+		    break;
+	}
+
+	printf("connection closed\n\r");
 	socket.close();
 
 	return 0;

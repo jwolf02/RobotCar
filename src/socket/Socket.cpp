@@ -3,10 +3,7 @@
 #include <stdexcept>
 #include <errno.h>
 #include <cstring>
-
-static inline int close_call(int fd) {
-    return close(fd);
-}
+#include <socket_wrappers.hpp>
 
 Socket::~Socket() {}
 
@@ -51,7 +48,7 @@ size_t Socket::recv(void *buf, size_t n) {
 }
 
 void Socket::close() {
-    if (close_call(sockfd) < 0) {
+    if (close_wrapper(sockfd) < 0) {
         throw std::runtime_error(std::string("close:") + strerror(errno));
     }
 }
@@ -70,4 +67,8 @@ double Socket::lastMeasuredSpeed() const {
 
 int Socket::port() const {
     return portno;
+}
+
+int Socket::channel() const {
+    return channelno;
 }

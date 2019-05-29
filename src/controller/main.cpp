@@ -2,7 +2,7 @@
 #include <terminal.hpp>
 #include <cstdio>
 #include <cstdlib>
-//#include <L298NHBridge.hpp>
+#include <L298NHBridge.hpp>
 #include <ServerSocket.hpp>
 #include <iostream>
 
@@ -18,14 +18,6 @@ int IN2 = 13;
 int IN3 = 19;
 int IN4 = 26;
 int ENB = 21;
-
-void printMenu(int operation, double left_speed, double right_speed) {
-	terminal::clear();
-	const char *op = operation ? "ROTATE" : "DRIVE";
-	printf("operation:\t %s\n\r", op);
-	printf("left speed:\t %.0f%%\n\rright speed:\t %.0f%%\n\r", left_speed * 100, right_speed * 100);
-	
-}
 
 int main(int argc, const char *argv[]) {
 
@@ -48,64 +40,85 @@ int main(int argc, const char *argv[]) {
 	// setup defaults
 	double motor_a_speed = 0.0, motor_b_speed = 0.0;
 	int operation = DRIVE;
-	printMenu(0, 0, 0);
-	//auto bridge = L298NHBridge(ENA, IN1, IN2, IN3, IN4, ENB);
+	auto bridge = L298NHBridge(ENA, IN1, IN2, IN3, IN4, ENB);
 
 	char c;
-	while ((socket.recv(&c, 1)) != 0x00 && c != 'x') {
-		switch (c) {
-			case 'a': {
-				if (operation == DRIVE && motor_a_speed < .99) {
-					motor_a_speed += STEP;
-					motor_b_speed += STEP;
-				} else if (operation == ROTATE) {
-					operation = DRIVE;
-					motor_a_speed = STEP;
-					motor_b_speed = STEP;
-				}
-				break;
-			} case 'd': {
-				if (operation == DRIVE && motor_a_speed > -0.99) {
-					motor_a_speed -= STEP;
-					motor_b_speed -= STEP;
-				} else if (operation == ROTATE) {
-					operation = DRIVE;
-					motor_a_speed = -STEP;
-					motor_b_speed = -STEP;
-				}
-				break;
-			} case 's': {
-				if (operation == ROTATE && motor_a_speed < 0.99) {
-					motor_a_speed += STEP;
-					motor_b_speed -= STEP;
-				} else if (operation == DRIVE) {
-					operation = ROTATE;
-					motor_a_speed = STEP;
-					motor_b_speed = -STEP;
-				}
-				break;
-			} case 'w': {
-				if (operation == ROTATE && motor_a_speed > -0.99) {
-					motor_a_speed -= STEP;
-					motor_b_speed += STEP;
-				} else if (operation == DRIVE) {
-					operation = ROTATE;
-					motor_a_speed = -STEP;
-					motor_b_speed = STEP;
-				}
-				break;
-			} case 'q' : {
-				operation = DRIVE;
-				motor_a_speed = 0.0;
-				motor_b_speed = 0.0;
-			} default: {
-			    printf("invalid input encountered: %c\n", c);
-			}
+	do {
+	    c = 0x00;
 
-		}
-		//bridge.setMotors(motor_a_speed, motor_b_speed);
-		printMenu(operation, motor_a_speed, motor_b_speed);
-	}
+	    try {
+	        while (socket.recv(&c, 1) == 0)
+	            ;
+	    } catch (std::exception &e) {
+	        printf("%s\n\r", e.what());
+	    }
+
+		switch (c) {
+            case 'a': {
+                if (operation == ROTATE && motor_a_speed < .99) {
+                    motor_a_speed += STEP;
+                    motor_b_speed += STEP;
+                } else if (operation == DRIVE) {
+                    operation = ROTATE;
+                    motor_a_speed = STEP;
+                    motor_b_speed = STEP;
+                }
+                break;
+            }
+            case 'd': {
+                if (operation == ROTATE && motor_a_speed > -0.99) {
+                    motor_a_speed -= STEP;
+                    motor_b_speed -= STEP;
+                } else if (operation == DRIVE) {
+                    operation = ROTATE;
+                    motor_a_speed = -STEP;
+                    motor_b_speed = -STEP;
+                }
+                break;
+            }
+            case 's': {
+                if (operation == DRIVE && motor_a_speed < 0.99) {
+                    motor_a_speed += STEP;
+                    motor_b_speed -= STEP;
+                } else if (operation == ROTATE) {
+                    operation = DRIVE;
+                    motor_a_speed = STEP;
+                    motor_b_speed = -STEP;
+                }
+                break;
+            }
+            case 'w': {
+                if (operation == DRIVE && motor_a_speed > -0.99) {
+                    motor_a_speed -= STEP;
+                    motor_b_speed += STEP;
+                } else if (operation == ROTATE) {
+                    operation = DRIVE;
+                    motor_a_speed = -STEP;
+                    motor_b_speed = STEP;
+                }
+                break;
+            } case 'q' : {
+                operation = DRIVE;
+                motor_a_speed = 0.0;
+                motor_b_speed = 0.0;
+                break;
+            }
+            default: {
+                printf("invalid input encountered: %c\n", c);
+            }
+        }
+
+	    try {
+	        double s = motor_a_speed >= 0 ? motor_a_speed : -motor_a_speed;
+	        uint32_t op = operation;
+	        socket.send(&s, sizeof(s));
+	        socket.send(&op, sizeof(op));
+	    } catch (std::exception &e) {
+
+	    }
+
+		bridge.setMotors(motor_a_speed, motor_b_speed);
+	} while (c != 'x');
 
     printf("connection closed\n");
     socket.close();
