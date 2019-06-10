@@ -19,6 +19,10 @@ int IN3 = 19;
 int IN4 = 26;
 int ENB = 21;
 
+// program arguments
+// connection={inet, bluetooth}
+// port=PORTNO
+// config=CONFIG_FILE
 int main(int argc, const char *argv[]) {
 
 	if (argc < 2) {

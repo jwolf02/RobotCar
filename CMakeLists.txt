@@ -4,6 +4,7 @@ project(RobotCar)
 set(CMAKE_CXX_STANDARD	11)
 set(CMAKE_CXX_FLAGS		"${CMAKE_CXX_FLAGS} -Wall -pedantic -O2 -march=native -mtune=native -fpermissive")
 
+find_package(OpenCV REQUIRED)
 
 set(SOCKET 				src/socket/Socket.hpp
         				src/socket/Socket.cpp
@@ -30,7 +31,7 @@ set(MONITOR 			src/monitor/main.cpp
 
 set(CONTROLLER 			src/controller/main.cpp
 						${SOCKET_INCLUDE}
-						${L298NHBRIDGE})
+						${L298NHBRIDGE} src/controller/RobotCar.hpp src/controller/RobotCar.cpp src/util/config.hpp src/util/config.cpp src/odometry/main.cpp)
 
 set(INCLUDE_DIRECTORIES	${CMAKE_CURRENT_SOURCE_DIR}/src/socket ${CMAKE_CURRENT_SOURCE_DIR}/src/util)
 
@@ -43,6 +44,6 @@ target_include_directories(monitor PUBLIC ${INCLUDE_DIRECTORIES})
 target_link_libraries(monitor socket)
 
 add_executable(controller ${CONTROLLER})
-target_include_directories(controller PUBLIC ${INCLUDE_DIRECTORIES})
-target_link_libraries(controller PUBLIC socket wiringPi pthread)
+target_include_directories(controller PUBLIC ${INCLUDE_DIRECTORIES} ${CMAKE_CURRENT_SOURCE_DIR}/src/controller)
+target_link_libraries(controller PUBLIC socket wiringPi pthread ${OpenCV_LIBS})
 
