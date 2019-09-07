@@ -4,37 +4,30 @@
 #include <L298NHBridge.hpp>
 #include <string>
 
-class RobotCar {
-public:
+namespace RobotCar {
 
+    // encodes if the car is currently rotating or driving
     enum Mode {
         Drive, Rotate
     };
 
-    RobotCar() = default;
+    void setup(int ENA, int IN1, int IN2, int IN3, int IN4, int ENB);
 
-    ~RobotCar();
-
-    void rotate(double speed);
-
-    void drive(double speed);
+    void cleanup();
 
     void drive(double motor_a_speed, double motor_b_speed);
 
+    void drive(double speed);
+
+    void rotate(double speed);
+
     void stop();
 
-    double speed() const;
+    double get_motor_a_speed();
 
-    Mode mode() const;
+    double get_motor_b_speed();
 
-private:
-
-    L298NHBridge _bridge;
-
-    double _speed = 0;
-
-    Mode _mode = Drive;
-
-};
+    Mode get_mode();
+}
 
 #endif // __ROBOTCAR_HPP

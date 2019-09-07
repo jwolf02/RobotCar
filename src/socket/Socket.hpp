@@ -26,8 +26,17 @@ public:
     // send n bytes from the buffer
     size_t send(const void *buf, size_t n);
 
+    // send a string, the receiver has to call the appropriate function
+    void send(const std::string &msg);
+
     // read up to n bytes to the buffer
     size_t recv(void *buf, size_t n);
+
+    // receive a message send with send(const std::string&)
+    void recv(std::string &msg);
+
+    // see above
+    std::string recv();
 
     // close socket
     virtual void close();

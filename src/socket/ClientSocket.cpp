@@ -24,24 +24,24 @@ void ClientSocket::connect(const std::string &addr, int port_or_channel) {
         portno = port_or_channel;
 
         if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-            throw std::runtime_error(std::string("socket: ") + strerror(errno));
+            throw std::runtime_error(std::string("socket() ") + strerror(errno));
         }
 
         if (inet_pton(AF_INET, addr.c_str(), &inet_address.sin_addr) < 0) {
-            throw std::runtime_error(std::string("inet_pton: ") + strerror(errno));
+            throw std::runtime_error(std::string("inet_pton() ") + strerror(errno));
         }
 
         inet_address.sin_family = AF_INET;
         inet_address.sin_port = htons(portno);
 
         if (connect_wrapper(sockfd, (struct sockaddr *) &inet_address, sizeof(inet_address)) < 0) {
-            throw std::runtime_error(std::string("connect: ") + strerror(errno));
+            throw std::runtime_error(std::string("connect() ") + strerror(errno));
         }
     } else {
         channelno = port_or_channel;
 
         if ((sockfd = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM)) < 0) {
-            throw std::runtime_error(std::string("socket: ") + strerror(errno));
+            throw std::runtime_error(std::string("socket() ") + strerror(errno));
         }
 
         // set the connection parameters (who to connect to)
@@ -50,7 +50,7 @@ void ClientSocket::connect(const std::string &addr, int port_or_channel) {
         str2ba(addr.c_str(), &bt_address.rc_bdaddr);
 
         if (connect_wrapper(sockfd, (struct sockaddr *) &bt_address, sizeof(bt_address)) < 0) {
-            throw std::runtime_error(std::string("connect: ") + strerror(errno));
+            throw std::runtime_error(std::string("connect() ") + strerror(errno));
         }
     }
 }
