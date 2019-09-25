@@ -6,12 +6,11 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cerrno>
 #include <sys/types.h>
-#include <time.h> 
+#include <ctime>
 #include <stdexcept>
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/rfcomm.h>
@@ -23,11 +22,11 @@ public:
 
 	ServerSocket(Socket::ConnectionType type, int port_or_channel);
 
-	virtual ~ServerSocket();
+	~ServerSocket() override;
 
 	void waitForConnection();
 
-	virtual void close();
+	void close() override;
 
 private:
 

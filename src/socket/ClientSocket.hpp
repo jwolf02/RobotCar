@@ -12,9 +12,9 @@ public:
 
 	ClientSocket() = default;
 
-	ClientSocket(Socket::ConnectionType type);
+	explicit ClientSocket(Socket::ConnectionType type);
 
-	~ClientSocket();
+	~ClientSocket() override;
 
 	void connect(const std::string &addr, int port_or_channel);
 

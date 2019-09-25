@@ -19,8 +19,13 @@ set(SOCKET_INCLUDE		src/socket/Socket.hpp
 						src/socket/ClientSocket.hpp
 						src/socket/ServerSocket.hpp)
 
-set(L298NHBRIDGE 		src/util/L298NHBridge.hpp
-						src/util/L298NHBridge.cpp)
+set(L298NHBRIDGE 		src/drivers/L298NHBridge.hpp
+						src/drivers/L298NHBridge.cpp)
+
+set(MPU9250 			src/drivers/MPU9250.hpp
+						src/drivers/MPU9250.cpp
+						src/drivers/I2Cdev.h
+						src/drivers/I2Cdev.cpp)
 
 set(TERMINAL 			src/util/terminal.hpp
 						src/util/terminal.cpp)
@@ -34,13 +39,14 @@ set(MONITOR 			src/monitor/main.cpp
 set(CONTROLLER 			src/controller/main.cpp
 						${SOCKET_INCLUDE}
 						${L298NHBRIDGE}
+						${MPU9250}
 						src/controller/RobotCar.hpp
 						src/controller/RobotCar.cpp
 						src/util/config.hpp
 						src/util/config.cpp
 						src/util/util.hpp)
 
-set(INCLUDE_DIRECTORIES	${CMAKE_CURRENT_SOURCE_DIR}/src/socket ${CMAKE_CURRENT_SOURCE_DIR}/src/util)
+set(INCLUDE_DIRECTORIES	${CMAKE_CURRENT_SOURCE_DIR}/src/socket ${CMAKE_CURRENT_SOURCE_DIR}/src/util ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers)
 
 add_library(socket SHARED ${SOCKET})
 target_include_directories(socket PUBLIC ${INCLUDE_DIRECTORIES})

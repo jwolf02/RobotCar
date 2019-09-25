@@ -1,5 +1,3 @@
-#include <unistd.h>
-#include <terminal.hpp>
 #include <cstdio>
 #include <cstdlib>
 #include <ServerSocket.hpp>
@@ -36,8 +34,6 @@ int main(int argc, const char *argv[]) {
 	    exit(EXIT_FAILURE);
 	}
 
-
-
 	Socket::ConnectionType type = Socket::Inet;
 	if (args.size() > 2 && args[1] == "--bluetooth") {
 	    type = Socket::Bluetooth;
@@ -55,6 +51,15 @@ int main(int argc, const char *argv[]) {
 	double motor_a_speed = 0.0, motor_b_speed = 0.0;
 	int operation = DRIVE;
 	RobotCar::setup(ENA, IN1, IN2, IN3, IN4, ENB);
+
+	std::cout << "calibrating IMU..." << std::endl;
+	RobotCar::calibrate();
+	std::cout << "done" << std::endl;
+
+	while (true) {
+	    double roll, pitch, yaw;
+
+	}
 
 	char c;
 	do {

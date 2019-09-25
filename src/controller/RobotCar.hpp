@@ -1,7 +1,6 @@
 #ifndef __ROBOTCAR_HPP
 #define __ROBOTCAR_HPP
 
-#include <L298NHBridge.hpp>
 #include <string>
 
 namespace RobotCar {
@@ -11,7 +10,11 @@ namespace RobotCar {
         Drive, Rotate
     };
 
-    void setup(int ENA, int IN1, int IN2, int IN3, int IN4, int ENB);
+    void setup(int ENA, int IN1, int IN2, int IN3, int IN4, int ENB, uint8_t address=0x68);
+
+    void calibrate(int num_measurements=1000);
+
+    void roll_pitch_yaw(double &roll, double &pitch, double &yaw);
 
     void cleanup();
 
