@@ -58,7 +58,8 @@ int main(int argc, const char *argv[]) {
 
 	while (true) {
 	    double roll, pitch, yaw;
-
+	    RobotCar::roll_pitch_yaw(roll, pitch, yaw);
+	    printf("\rroll: %.3f pitch: %.3f yaw: %.3f         ", roll, pitch, yaw);
 	}
 
 	char c;
