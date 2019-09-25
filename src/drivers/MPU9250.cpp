@@ -2997,7 +2997,7 @@ bool MPU9250::writeMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t b
         
         if (useProgMem) {
             // write the chunk of data as specified
-            for (j = 0; j < chunkSize; j++) progBuffer[j] = pgm_read_byte(data + i + j);
+            // for (j = 0; j < chunkSize; j++) progBuffer[j] = pgm_read_byte(data + i + j);
         } else {
             // write the chunk of data as specified
             progBuffer = (uint8_t *)data + i;
