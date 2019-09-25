@@ -35,7 +35,6 @@ THE SOFTWARE.
 */
 
 #include <MPU9250.hpp>
-#include <wiringPi.h>
 
 /** Default constructor, uses default I2C address.
  * @see MPU9250_DEFAULT_ADDRESS
