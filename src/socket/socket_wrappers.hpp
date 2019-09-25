@@ -1,7 +1,8 @@
 #ifndef __SOCKET_WRAPPERS_HPP
 #define __SOCKET_WRAPPERS_HPP
 
-#include <stdio.h>
+#include <cstddef>
+#include <cstdio>
 
 int close_wrapper(int fd);
 

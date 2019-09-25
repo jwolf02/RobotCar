@@ -40,7 +40,7 @@ void Socket::recv(std::string &msg) {
     recv(&msg_size, sizeof(uint32_t));
     msg_size = (uint32_t) ntohl((uint32_t) msg_size);
     msg.reserve(msg_size);
-    recv(msg.data(), msg_size);
+    recv((void *) msg.data(), msg_size);
 }
 
 std::string Socket::recv() {
@@ -50,7 +50,8 @@ std::string Socket::recv() {
 }
 
 void Socket::close() {
-    throw std::runtime_error(std::string("close() ") + strerror(errno));
+    if (close_wrapper(sockfd) < 0)
+        throw std::runtime_error(std::string("close() ") + strerror(errno));
 }
 
 int Socket::port() const {

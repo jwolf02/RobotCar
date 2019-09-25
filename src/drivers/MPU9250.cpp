@@ -61,6 +61,7 @@ MPU9250::MPU9250(uint8_t address) {
  * the default internal clock source.
  */
 void MPU9250::initialize() {
+    I2Cdev::initialize();
     setClockSource(MPU9250_CLOCK_PLL_XGYRO);
     setFullScaleGyroRange(MPU9250_GYRO_FS_250);
     setFullScaleAccelRange(MPU9250_ACCEL_FS_2);

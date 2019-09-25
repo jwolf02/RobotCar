@@ -3,13 +3,10 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <unistd.h>
-#include <cstdio>
 #include <cstring>
-#include <errno.h>
+#include <cerrno>
 #include <socket_wrappers.hpp>
 #include <bluetooth/bluetooth.h>
-#include <bluetooth/rfcomm.h>
 
 ClientSocket::ClientSocket(Socket::ConnectionType type) {
     conn_type = type;

@@ -1,5 +1,4 @@
 #include <ServerSocket.hpp>
-#include <socket_wrappers.hpp>
 #include <bluetooth/bluetooth.h>
 
 ServerSocket::ServerSocket(Socket::ConnectionType type, int port_or_channel) {
