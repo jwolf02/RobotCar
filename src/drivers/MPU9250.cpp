@@ -35,6 +35,7 @@ THE SOFTWARE.
 */
 
 #include <MPU9250.hpp>
+#include <wiringPi.h>
 
 /** Default constructor, uses default I2C address.
  * @see MPU9250_DEFAULT_ADDRESS
@@ -3053,7 +3054,9 @@ bool MPU9250::writeMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t b
 bool MPU9250::writeProgMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t bank, uint8_t address, bool verify) {
     return writeMemoryBlock(data, dataSize, bank, address, verify, true);
 }
+
 bool MPU9250::writeDMPConfigurationSet(const uint8_t *data, uint16_t dataSize, bool useProgMem) {
+    /*
     uint8_t *progBuffer, success, special;
     uint16_t i, j;
     if (useProgMem) {
@@ -3083,6 +3086,7 @@ bool MPU9250::writeDMPConfigurationSet(const uint8_t *data, uint16_t dataSize, b
             Serial.print(offset);
             Serial.print(", length=");
             Serial.println(length);*/
+            /*
             if (useProgMem) {
                 if (sizeof(progBuffer) < length) progBuffer = (uint8_t *)realloc(progBuffer, length);
                 for (j = 0; j < length; j++) progBuffer[j] = pgm_read_byte(data + i + j);
@@ -3105,6 +3109,7 @@ bool MPU9250::writeDMPConfigurationSet(const uint8_t *data, uint16_t dataSize, b
             /*Serial.print("Special command code ");
             Serial.print(special, HEX);
             Serial.println(" found...");*/
+            /*
             if (special == 0x01) {
                 // enable DMP-related interrupts
                 
@@ -3127,6 +3132,7 @@ bool MPU9250::writeDMPConfigurationSet(const uint8_t *data, uint16_t dataSize, b
     }
     if (useProgMem) free(progBuffer);
     return true;
+    */
 }
 bool MPU9250::writeProgDMPConfigurationSet(const uint8_t *data, uint16_t dataSize) {
     return writeDMPConfigurationSet(data, dataSize, true);
