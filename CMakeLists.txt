@@ -42,7 +42,7 @@ set(CONTROLLER 			src/controller/main.cpp
 						src/controller/RobotCar.cpp
 						src/util/config.hpp
 						src/util/config.cpp
-						src/util/util.hpp)
+						src/util/util.hpp src/drivers/HC_SR04.hpp src/drivers/HC_SR04.cpp)
 
 set(INCLUDE_DIRECTORIES	${CMAKE_CURRENT_SOURCE_DIR}/src/socket ${CMAKE_CURRENT_SOURCE_DIR}/src/util ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers)
 

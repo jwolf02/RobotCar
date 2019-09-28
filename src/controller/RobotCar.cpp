@@ -63,7 +63,7 @@ void RobotCar::setup(int ENA, int IN1, int IN2, int IN3, int IN4, int ENB, uint8
     imu = MPU9250(address);
     imu.initialize();
     if (!imu.testConnection()) {
-        throw std::runtime_error("connection to IMU failed");
+        // throw std::runtime_error("connection to IMU failed");
     }
 
     // cleanup module after exit
