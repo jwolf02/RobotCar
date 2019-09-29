@@ -39,7 +39,7 @@ public:
     std::string recv();
 
     // close socket
-    virtual void close();
+    virtual void close() = 0;
 
     int port() const;
 

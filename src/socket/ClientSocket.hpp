@@ -18,6 +18,8 @@ public:
 
 	void connect(const std::string &addr, int port_or_channel);
 
+	void close() override;
+
 private:
 
 	struct sockaddr_in inet_address = { 0 };

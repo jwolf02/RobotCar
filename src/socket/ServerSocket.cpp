@@ -66,5 +66,7 @@ void ServerSocket::waitForConnection() {
 }
 
 void ServerSocket::close() {
-    throw std::runtime_error(std::string("close() ") + strerror(errno));	    
+    if (close_wrapper(sockfd) < 0) {
+        throw std::runtime_error(std::string("close() ") + strerror(errno));
+    }
 }

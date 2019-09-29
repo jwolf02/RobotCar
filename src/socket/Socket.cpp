@@ -49,11 +49,6 @@ std::string Socket::recv() {
     return str;
 }
 
-void Socket::close() {
-    if (close_wrapper(sockfd) < 0)
-        throw std::runtime_error(std::string("close() ") + strerror(errno));
-}
-
 int Socket::port() const {
     return portno;
 }

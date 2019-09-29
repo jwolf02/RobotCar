@@ -51,3 +51,9 @@ void ClientSocket::connect(const std::string &addr, int port_or_channel) {
         }
     }
 }
+
+void ClientSocket::close() {
+    if (close_wrapper(sockfd) < 0) {
+        throw std::runtime_error(std::string("close() ") + strerror(errno));
+    }
+}
