@@ -34,7 +34,8 @@ namespace util {
      */
     template <typename T>
     inline T strto(const std::string &str) {
-        static_assert(std::is_fundamental<T>::value && std::is_arithmetic<T>::value, "cannot convert string to non-arithmetic type");
+        static_assert(std::is_fundamental<T>::value && (std::is_arithmetic<T>::value || std::is_same<T, bool>::value),
+                "cannot convert string to non-arithmetic type");
 
         // signed types
         if (std::is_same<T, char>::value || std::is_same<T, short>::value || std::is_same<T, int>::value ||
@@ -53,7 +54,11 @@ namespace util {
         } // long double
         else if (std::is_same<T, long double>::value) {
             return strtold(str.c_str(), nullptr);
-        } else {
+        } // bool
+        else if (std::is_same<T, bool>::value) {
+            return str == "true" || str == "1" || str == "True" || str == "TRUE";
+        }
+        else {
             throw std::domain_error("cannot convert string to specified type");
         }
     }
@@ -82,29 +87,6 @@ namespace util {
     template <typename T>
     inline constexpr bool is_floating_point_type() {
         return std::is_same<T, long double>::value || std::is_same<T, double>::value || std::is_same<T, float>::value;
-    }
-
-    template <typename T>
-    inline std::pair<T, char> convert_unit(T value) {
-        if (value >= 1000000000) {
-            return std::make_pair(value / 1000000000, 'G');
-        } else if (value >= 1000000) {
-            return std::make_pair(value / 1000000, 'M');
-        } else if (value >= 1000) {
-            return std::make_pair(value / 1000, 'K');
-        }
-
-        if (is_floating_point_type<T>() && value < 1.0) {
-            if (value >= 0.001) {
-                return std::make_pair(value * 1000, 'm');
-            } else if (value >= 0.000001) {
-                return std::make_pair(value * 1000000, 'u');
-            } else {
-                return std::make_pair(value * 1000000000, 'n');
-            }
-        }
-
-        return std::make_pair(value, ' ');
     }
 }
 

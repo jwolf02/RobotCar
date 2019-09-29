@@ -4,6 +4,7 @@
 #include <iostream>
 #include <RobotCar.hpp>
 #include <util.hpp>
+#include <config.hpp>
 
 #define DRIVE		0
 #define ROTATE		1
@@ -30,19 +31,24 @@ int main(int argc, const char *argv[]) {
 
     const std::vector<std::string> args(argv, argv + argc);
 	if (args.size() < 2) {
-	    std::cout << "Usage: " << args[0] << " [--bluetooth] <port>" << std::endl;
+	    std::cout << "Usage: " << args[0] << " [--config=PATH] <port>" << std::endl;
 	    exit(EXIT_FAILURE);
 	}
 
-	Socket::ConnectionType type = Socket::Inet;
-	if (args.size() > 2 && args[1] == "--bluetooth") {
-	    type = Socket::Bluetooth;
+	std::cout << "loading configuration file..." << std::endl;
+	std::string config_path = config::DEFAULT_PATH;
+	if (args.size() > 2) {
+	    auto tokens = util::split(args[1], "=");
+	    if (tokens[0] == "--config") {
+	        config_path = tokens[1];
+	    }
 	}
+	config::load(config_path);
 
 	const int port = util::strto<int>(args.back());
 
 	printf("wait for connection...\n");
-	auto socket = ServerSocket(type, port);
+	auto socket = ServerSocket(Socket::Inet, port);
 	socket.waitForConnection();
 
 	printf("connection established\n");
@@ -51,16 +57,6 @@ int main(int argc, const char *argv[]) {
 	double motor_a_speed = 0.0, motor_b_speed = 0.0;
 	int operation = DRIVE;
 	RobotCar::setup(ENA, IN1, IN2, IN3, IN4, ENB);
-
-	std::cout << "calibrating IMU..." << std::endl;
-	RobotCar::calibrate();
-	std::cout << "done" << std::endl;
-
-	while (true) {
-	    double roll, pitch, yaw;
-	    RobotCar::roll_pitch_yaw(roll, pitch, yaw);
-	    printf("\rroll: %.3f pitch: %.3f yaw: %.3f         ", roll, pitch, yaw);
-	}
 
 	char c;
 	do {
