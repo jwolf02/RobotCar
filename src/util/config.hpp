@@ -17,17 +17,17 @@ namespace config {
     std::string get(const std::string &key);
 
     template <typename T>
-    T get_as(const std::string &key) {
+    inline T get_as(const std::string &key) {
         return util::strto<T>(get(key));
     }
 
     template <>
-    std::string get_as<std::string>(const std::string &key) {
+    inline std::string get_as<std::string>(const std::string &key) {
         return get(key);
     }
 
     template <typename T>
-    T get_or_default(const std::string &key, T default_value) {
+    inline T get_or_default(const std::string &key, T default_value) {
         return contains(key) ? get_as<T>(key) : default_value;
     }
 
