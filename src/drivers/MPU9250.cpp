@@ -18,6 +18,10 @@ MPU9250::~MPU9250() {
     delete imu;
 }
 
+uint64_t MPU9250::pollInterval() {
+    return imu->getPollInterval();
+}
+
 bool MPU9250::read() {
     return imu->IMURead();
 }

@@ -14,6 +14,8 @@ public:
 
     ~MPU9250();
 
+    uint64_t pollInterval();
+
     bool read();
 
     Double3D orientation(bool in_degrees=true);
