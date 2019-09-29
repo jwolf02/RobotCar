@@ -55,7 +55,7 @@ target_link_libraries(monitor socket)
 
 add_executable(controller ${CONTROLLER})
 target_include_directories(controller PUBLIC ${INCLUDE_DIRECTORIES} ${CMAKE_CURRENT_SOURCE_DIR}/src/controller)
-target_link_libraries(controller PUBLIC socket wiringPi pthread)
+target_link_libraries(controller PUBLIC socket wiringPi pthread RTIMULib)
 
 install(TARGETS monitor DESTINATION /usr/bin OPTIONAL)
 install(TARGETS controller DESTINATION /usr/bin OPTIONAL)
