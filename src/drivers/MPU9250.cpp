@@ -19,7 +19,7 @@ MPU9250::~MPU9250() {
 }
 
 uint64_t MPU9250::pollInterval() {
-    return imu->getPollInterval();
+    return imu->IMUGetPollInterval();
 }
 
 bool MPU9250::read() {
