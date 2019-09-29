@@ -30,9 +30,9 @@ Double3D MPU9250::orientation(bool in_degrees) {
     const double factor = in_degrees ? 180.0 / M_PI : 1.0;
     Double3D orient;
     auto data = imu->getIMUData();
-    orient[0] = data.fusionPose.x() * factor;
-    orient[1] = data.fusionPose.y() * factor;
-    orient[2] = data.fusionPose.z() * factor;
+    orient[0] = data.fusionPose.x() * factor + 180.0;
+    orient[1] = data.fusionPose.y() * factor + 180.0;
+    orient[2] = data.fusionPose.z() * factor + 180.0;
     return orient;
 }
 
