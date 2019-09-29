@@ -1,5 +1,6 @@
 #include <ServerSocket.hpp>
 #include <bluetooth/bluetooth.h>
+#include <socket_wrappers.hpp>
 
 ServerSocket::ServerSocket(Socket::ConnectionType type, int port_or_channel) {
     if (type == Socket::Inet) {
