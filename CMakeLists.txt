@@ -22,8 +22,7 @@ set(L298NHBRIDGE 		src/drivers/L298NHBridge.hpp
 
 set(MPU9250 			src/drivers/MPU9250.hpp
 						src/drivers/MPU9250.cpp
-						src/drivers/I2Cdev.h
-						src/drivers/I2Cdev.cpp)
+		)
 
 set(TERMINAL 			src/util/terminal.hpp
 						src/util/terminal.cpp)

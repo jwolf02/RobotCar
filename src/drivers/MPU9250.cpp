@@ -1,8 +1,8 @@
 #include <MPU9250.hpp>
 
 MPU9250::MPU9250(const std::string &settings) {
-    imu = RTIMU::createIMU(new RTIMUSettings(settings));
-    if ((imu == nullptr) or (imu->IMUType() == RTIMU_NULL_TYPE)) {
+    imu = RTIMU::createIMU(new RTIMUSettings(settings.c_str()));
+    if (imu == nullptr) {
         throw std::runtime_error("no IMU found");
     }
 

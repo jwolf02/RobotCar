@@ -13,8 +13,6 @@
 
 using namespace RobotCar;
 
-static void _drive(double a, double b);
-
 // H-Bridge
 L298NHBridge bridge;
 
@@ -37,14 +35,14 @@ void RobotCar::cleanup() {
 }
 
 void RobotCar::rotate(double speed) {
-    _drive(speed, -speed);
+    drive(speed, -speed);
 }
 
 void RobotCar::drive(double speed) {
-    _drive(speed, speed);
+    drive(speed, speed);
 }
 
-void _drive(double motor_a_speed, double motor_b_speed) {
+void RobotCar::drive(double motor_a_speed, double motor_b_speed) {
     // set motor_a_speed to range [-1, 1]
     SATURATE_RANGE(-1.0, 1.0, motor_a_speed);
 

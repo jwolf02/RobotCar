@@ -14,6 +14,8 @@ namespace RobotCar {
 
     void cleanup();
 
+    void drive(double motor_a_speed, double motor_b_speed);
+
     void drive(double speed);
 
     void rotate(double speed);
