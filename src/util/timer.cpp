@@ -54,13 +54,13 @@ timer_t timer::create(const std::function<void (void)> &func, uint64_t expire_ti
     te.sigev_value.sival_ptr = &timer;
     timer_create(clockid, &te, &timer);
 
-    timer::set_time(timer, expire_time, interval_time);
-
     // add mapping of timer to function
     _map[signum] = func;
 
     // add mapping between timer and the signal
     _timer_map[timer] = signum;
+
+    timer::set_time(timer, expire_time, interval_time);
 
     return timer;
 }
