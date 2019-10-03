@@ -8,26 +8,21 @@
 namespace timer {
 
     /*
-     * get the maximum number of available timers
-     */
-    int max_timers();
-
-    /*
      * get the number of active timers
      */
-    int num_timers();
+    unsigned int active_timers();
 
     /*
      * setup a timer to go off after expire_time milliseconds and repeat itself after
      * every interval_time. whenever it goes off func is called
      */
-    timer_t create(const std::function<void (void)> &action, uint64_t expire_time, uint64_t interval_time,
-            clockid_t clockid=CLOCK_REALTIME);
+    timer_t create(const std::function<void (void)> &action, uint64_t expire_time, uint64_t interval_time=0,
+            clockid_t clockid=CLOCK_MONOTONIC);
 
     /*
      * reset the time
      */
-    void set_time(timer_t timer, uint64_t expire_time, uint64_t interval_time);
+    void set_time(timer_t timer, uint64_t expire_time, uint64_t interval_time=0);
 
     /*
      * get the remaining time until the next expiration in milliseconds
@@ -37,7 +32,7 @@ namespace timer {
     /*
      * delete the timer
      */
-    void disarm(timer_t timer);
+    void stop(timer_t timer);
 
 }
 
