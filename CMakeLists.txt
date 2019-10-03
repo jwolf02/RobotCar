@@ -28,10 +28,8 @@ set(TERMINAL 			src/util/terminal.hpp
 						src/util/terminal.cpp)
 
 set(MONITOR 			src/monitor/main.cpp
-						src/util/SPI.hpp
-						src/util/SPI.cpp
 						${TERMINAL}
-						${SOCKET_INCLUDE})
+						${SOCKET_INCLUDE} src/util/timer.cpp src/util/timer.hpp)
 
 set(CONTROLLER 			src/controller/main.cpp
 						${SOCKET_INCLUDE}
@@ -41,7 +39,11 @@ set(CONTROLLER 			src/controller/main.cpp
 						src/controller/RobotCar.cpp
 						src/util/config.hpp
 						src/util/config.cpp
-						src/util/util.hpp src/drivers/HC_SR04.hpp src/drivers/HC_SR04.cpp)
+						src/util/util.hpp
+						src/drivers/HC_SR04.hpp
+						src/drivers/HC_SR04.cpp
+		src/util/Tensor.hpp
+						src/util/Clock.hpp)
 
 set(INCLUDE_DIRECTORIES	${CMAKE_CURRENT_SOURCE_DIR}/src/socket ${CMAKE_CURRENT_SOURCE_DIR}/src/util ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers)
 
