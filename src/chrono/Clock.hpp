@@ -71,5 +71,6 @@ private:
 
 using SteadyClock = Clock<STEADY_CLOCK>;
 using SystemClock = Clock<SYSTEM_CLOCK>;
+typedef SteadyClock DefaultClock;
 
 #endif // __CLOCK_HPP

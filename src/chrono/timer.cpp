@@ -3,6 +3,10 @@
 #include <csignal>
 #include <stdexcept>
 #include <unordered_map>
+#include <thread>
+#include <condition_variable>
+#include <queue>
+#include <atomic>
 
 // using a hash map to provide amortised constant time access
 static std::unordered_map<timer_t, std::function<void (void)>> _map;
@@ -10,13 +14,46 @@ static std::unordered_map<timer_t, std::function<void (void)>> _map;
 // indicate if the signal handler is already setup
 static bool _handler_setup = false;
 
+// seperate handler thread
+static std::thread _thread;
+
+// thread safe queue to enqueue function to be called
+static std::queue<std::function<void (void)>> _queue;
+
+// mutex to make queue thread safe
+static std::mutex _mtx;
+
+// signal handler thread to wake up
+static std::condition_variable _cond;
+
 static void _signal_handler(int signum, siginfo_t *siginfo, void *context) {
-    if (signum == SIGALRM) {
+    // only process signal if signal number is correct and
+    // there is currently no active signal handler executing
+    // this bears the small chance that timers expire without notice
+    static std::atomic_bool _flag(false);
+    bool t = true, f = false;
+    if (signum == SIGALRM && !_flag.compare_exchange_strong(f, t)) {
         auto timer_ptr = (timer_t *) siginfo->si_value.sival_ptr;
         auto it = _map.find(*timer_ptr);
         if (it != _map.end()) {
-            (*it).second();
+            std::unique_lock<std::mutex> lock(_mtx);
+            _queue.push((*it).second);
+            _mtx.unlock();
+            _cond.notify_one();
         }
+        _flag = false;
+    }
+}
+
+static void _thread_func() {
+    while (true) {
+        std::unique_lock<std::mutex> lock(_mtx);
+        while (_queue.empty()) {
+            _cond.wait(lock, []{ return _queue.empty(); });
+        }
+        auto func = _queue.front();
+        _queue.pop();
+        func();
     }
 }
 
@@ -38,6 +75,11 @@ timer_t timer::create(const std::function<void (void)> &func, uint64_t expire_ti
         if (sigaction(signum, &sa, nullptr) == -1) {
             throw std::runtime_error("failed to setup signal handler");
         }
+
+        // create handler thread
+        _thread = std::thread(_thread_func);
+
+        _handler_setup = true;
     }
 
     // create timer

@@ -4,6 +4,8 @@
 #include <unistd.h>
 #include <string>
 #include <functional>
+#include <cstdint>
+#include <ctime>
 
 namespace timer {
 
@@ -14,7 +16,7 @@ namespace timer {
 
     /*
      * setup a timer to go off after expire_time milliseconds and repeat itself after
-     * every interval_time. whenever it goes off func is called
+     * every interval_time. whenever it expires func is called
      */
     timer_t create(const std::function<void (void)> &action, uint64_t expire_time, uint64_t interval_time=0,
             clockid_t clockid=CLOCK_MONOTONIC);

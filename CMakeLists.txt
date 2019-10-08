@@ -29,7 +29,7 @@ set(TERMINAL 			src/util/terminal.hpp
 
 set(MONITOR 			src/monitor/main.cpp
 						${TERMINAL}
-						${SOCKET_INCLUDE} src/util/timer.cpp src/util/timer.hpp)
+						${SOCKET_INCLUDE} src/chrono/timer.cpp src/chrono/timer.hpp)
 
 set(CONTROLLER 			src/controller/main.cpp
 						${SOCKET_INCLUDE}
@@ -43,7 +43,7 @@ set(CONTROLLER 			src/controller/main.cpp
 						src/drivers/HC_SR04.hpp
 						src/drivers/HC_SR04.cpp
 		src/util/Tensor.hpp
-						src/util/Clock.hpp)
+		src/chrono/Clock.hpp)
 
 set(INCLUDE_DIRECTORIES	${CMAKE_CURRENT_SOURCE_DIR}/src/socket ${CMAKE_CURRENT_SOURCE_DIR}/src/util ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers)
 
