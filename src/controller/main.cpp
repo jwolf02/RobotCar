@@ -49,9 +49,11 @@ int main(int argc, const char *argv[]) {
 
 	printf("wait for connection...\n");
 	auto socket = ServerSocket(Socket::Inet, port);
-	socket.waitForConnection();
+	//socket.waitForConnection();
 
 	printf("connection established\n");
+
+
 
 	// setup defaults
 	double motor_a_speed = 0.0, motor_b_speed = 0.0;

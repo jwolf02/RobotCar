@@ -2,11 +2,9 @@
 #define __TIMER_HPP
 
 #include <unistd.h>
-#include <string>
 #include <functional>
 #include <cstdint>
 #include <ctime>
-#include <atomic>
 
 namespace timer {
 
@@ -20,7 +18,7 @@ namespace timer {
      * every interval_time. whenever it expires func is called
      */
     timer_t create(const std::function<void (void)> &action, uint64_t expire_time, uint64_t interval_time=0,
-            clockid_t clockid=CLOCK_MONOTONIC);
+            clockid_t clockid=CLOCK_REALTIME);
 
     /*
      * reset the time

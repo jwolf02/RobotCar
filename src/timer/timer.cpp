@@ -29,6 +29,9 @@ static std::condition_variable _cond;
 // number of unhandled timers
 static std::atomic_uint32_t _missed_timers(0);
 
+// flag to signal thread to execute
+static volatile _exec = false;
+
 static void _signal_handler(int signum, siginfo_t *siginfo, void *context) {
     // only process signal if signal number is correct and
     // there is currently no active signal handler executing
@@ -51,7 +54,7 @@ static void _signal_handler(int signum, siginfo_t *siginfo, void *context) {
 }
 
 static void _thread_func() {
-    while (true) {
+    while (_exec) {
         std::unique_lock<std::mutex> lock(_mtx);
         while (_queue.empty()) {
             _cond.wait(lock, []{ return _queue.empty(); });
@@ -81,10 +84,13 @@ timer_t timer::create(const std::function<void (void)> &func, uint64_t expire_ti
             throw std::runtime_error("failed to setup signal handler");
         }
 
+        _exec = true;
         // create handler thread
         _thread = std::thread(_thread_func);
 
         _handler_setup = true;
+
+        atexit([]{ _exec = false; })
     }
 
     // create timer
