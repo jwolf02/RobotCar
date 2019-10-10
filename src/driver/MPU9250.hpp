@@ -18,7 +18,7 @@ public:
 
     bool read();
 
-    Double3D orientation(bool in_degrees=true);
+    Double3D rotation(bool in_degrees=true);
 
     Double3D acceleration();
 

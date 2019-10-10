@@ -6,6 +6,7 @@
 #include <functional>
 #include <cstdint>
 #include <ctime>
+#include <atomic>
 
 namespace timer {
 
@@ -36,6 +37,10 @@ namespace timer {
      */
     void stop(timer_t timer);
 
+    /*
+     * get the number of timers that expired while the signal handler was busy
+     */
+    unsigned int missed_timers();
 }
 
 #endif // __TIMER_HPP

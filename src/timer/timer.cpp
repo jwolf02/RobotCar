@@ -26,13 +26,16 @@ static std::mutex _mtx;
 // signal handler thread to wake up
 static std::condition_variable _cond;
 
+// number of unhandled timers
+static std::atomic_uint32_t _missed_timers(0);
+
 static void _signal_handler(int signum, siginfo_t *siginfo, void *context) {
     // only process signal if signal number is correct and
     // there is currently no active signal handler executing
     // this bears the small chance that timers expire without notice
     static std::atomic_bool _flag(false);
     bool t = true, f = false;
-    if (signum == SIGALRM && !_flag.compare_exchange_strong(f, t)) {
+    if (!_flag.compare_exchange_strong(f, t)) {
         auto timer_ptr = (timer_t *) siginfo->si_value.sival_ptr;
         auto it = _map.find(*timer_ptr);
         if (it != _map.end()) {
@@ -42,6 +45,8 @@ static void _signal_handler(int signum, siginfo_t *siginfo, void *context) {
             _cond.notify_one();
         }
         _flag = false;
+    } else {
+        _missed_timers += 1;
     }
 }
 
@@ -115,4 +120,8 @@ uint64_t timer::get_time(timer_t timer) {
 void timer::stop(timer_t timer) {
     _map.erase(timer);
     timer_delete(timer);
+}
+
+unsigned int timer::missed_timers() {
+    return _missed_timers;
 }

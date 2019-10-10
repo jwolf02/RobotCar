@@ -26,7 +26,7 @@ bool MPU9250::read() {
     return imu->IMURead();
 }
 
-Double3D MPU9250::orientation(bool in_degrees) {
+Double3D MPU9250::rotation(bool in_degrees) {
     const double factor = in_degrees ? 180.0 / M_PI : 1.0;
     Double3D orient;
     auto data = imu->getIMUData();
