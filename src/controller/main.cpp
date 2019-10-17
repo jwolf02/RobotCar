@@ -9,19 +9,7 @@
 #define DRIVE		0
 #define ROTATE		1
 
-#define STEP		0.2
-
-// H-Bridge pins
-int ENA = 20;
-int IN1 = 6;
-int IN2 = 13;
-int IN3 = 19;
-int IN4 = 26;
-int ENB = 21;
-
-void execute_command(const std::string &cmd) {
-
-}
+#define STEP        1
 
 // program arguments
 // connection={inet, bluetooth}
@@ -30,30 +18,33 @@ void execute_command(const std::string &cmd) {
 int main(int argc, const char *argv[]) {
 
     const std::vector<std::string> args(argv, argv + argc);
-	if (args.size() < 2) {
-	    std::cout << "Usage: " << args[0] << " [--config=PATH] <port>" << std::endl;
-	    exit(EXIT_FAILURE);
-	}
 
-	std::cout << "loading configuration file..." << std::endl;
-	std::string config_path = config::DEFAULT_PATH;
-	if (args.size() > 2) {
-	    auto tokens = util::split(args[1], "=");
-	    if (tokens[0] == "--config") {
-	        config_path = tokens[1];
-	    }
-	}
-	config::load(config_path);
+	if (args.size() > 1 && args[1].find("--config=")) {
+        const std::string config_path = args[1].substr(9);
 
-	const int port = util::strto<int>(args.back());
+        std::cout << "loading config file '" << config_path << '\'' << std::endl;
 
-	printf("wait for connection...\n");
-	auto socket = ServerSocket(Socket::Inet, port);
-	//socket.waitForConnection();
+        try {
+            config::load(config_path);
+        } catch (std::exception &ex) {
+            std::cout << ex.what() << std::endl;
+        }
+    }
 
-	printf("connection established\n");
+    // H-Bridge pins
+    int ENA = config::get_or_default("ENA", 20);
+    int IN1 = config::get_or_default("IN1", 6);
+    int IN2 = config::get_or_default("IN2", 13);
+    int IN3 = config::get_or_default("IN3", 19);
+    int IN4 = config::get_or_default("IN4", 26);
+    int ENB = config::get_or_default("ENB", 21);
 
+    const int port = config::get_or_default("PORT", 8225);
 
+    printf("wait for connection...\n");
+    auto socket = ServerSocket(Socket::Inet, port);
+    socket.waitForConnection();
+    printf("connection established\n");
 
 	// setup defaults
 	double motor_a_speed = 0.0, motor_b_speed = 0.0;
@@ -72,9 +63,6 @@ int main(int argc, const char *argv[]) {
 	    }
 
 		switch (c) {
-	        case 'c': {
-	            execute_command(socket.recv());
-	        }
             case 'a': {
                 if (operation == ROTATE && motor_a_speed < .99) {
                     motor_a_speed += STEP;

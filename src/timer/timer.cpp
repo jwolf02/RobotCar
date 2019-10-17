@@ -30,7 +30,7 @@ static std::condition_variable _cond;
 static std::atomic_uint32_t _missed_timers(0);
 
 // flag to signal thread to execute
-static volatile _exec = false;
+static volatile bool _exec = false;
 
 static void _signal_handler(int signum, siginfo_t *siginfo, void *context) {
     // only process signal if signal number is correct and
@@ -45,7 +45,7 @@ static void _signal_handler(int signum, siginfo_t *siginfo, void *context) {
             std::unique_lock<std::mutex> lock(_mtx);
             _queue.push((*it).second);
             _mtx.unlock();
-            _cond.notify_one();
+            _cond.notify_all();
         }
         _flag = false;
     } else {
@@ -63,6 +63,11 @@ static void _thread_func() {
         _queue.pop();
         func();
     }
+}
+
+static void _terminate_thread() {
+    _exec = false;
+    _cond.notify_all();
 }
 
 unsigned int timer::active_timers() {
@@ -90,7 +95,7 @@ timer_t timer::create(const std::function<void (void)> &func, uint64_t expire_ti
 
         _handler_setup = true;
 
-        atexit([]{ _exec = false; })
+        atexit(_terminate_thread);
     }
 
     // create timer

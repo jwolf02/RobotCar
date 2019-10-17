@@ -5,10 +5,13 @@
 #include <terminal.hpp>
 #include <cstdio>
 #include <cstdlib>
+#include <vector>
 
 // operation modes
 #define DRIVE		0
 #define ROTATE		1
+
+#define PORT        8225
 
 void printMenu(int operation, double speed) {
     terminal::clear();
@@ -19,20 +22,22 @@ void printMenu(int operation, double speed) {
 
 int main(int argc, const char *argv[]) {
 
-	if (argc < 3) {
-		std::cout << "Usage: " << argv[0] << "[--bluetooth] <address> <port/channel>" << std::endl;
+    const std::vector<std::string> args(argv, argv + argc);
+
+	if (argc < 2) {
+		std::cout << "Usage: " << argv[0] << "[--bluetooth] <address>" << std::endl;
 		return 1;
 	}
 
 	Socket::ConnectionType type = Socket::Inet;
-	if (argc > 3 && strcmp(argv[1], "--bluetooth") == 0) {
+	if (argc > 2 && strcmp(argv[1], "--bluetooth") == 0) {
 	    type = Socket::Bluetooth;
 	}
 
     auto socket = ClientSocket(type);
 
-	std::string addr = argv[argc - 2];
-    int port = strtol(argv[argc - 1], nullptr, 10);
+	const std::string addr = argv[argc - 1];
+    const int port = PORT;
 
     std::cout << "connecting to " << addr << ":" << port << std::endl;
     try {
