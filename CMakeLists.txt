@@ -71,8 +71,8 @@ target_include_directories(monitor PUBLIC ${UTIL_INCLUDE_DIR} ${SOCKET_INCLUDE_D
 target_link_libraries(monitor socket util)
 
 set(CONTROLLER_SOURCES  src/controller/main.cpp
-                        src/controller/RobotCar.cpp
-                        src/controller/RobotCar.hpp)
+						src/controller/controller.hpp
+						src/controller/controller.cpp)
 
 add_executable(controller ${CONTROLLER_SOURCES})
 target_include_directories(controller PUBLIC ${SOCKET_INCLUDE_DIR} ${UTIL_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/src/controller)
