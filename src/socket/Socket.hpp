@@ -12,10 +12,6 @@
 
 class Socket {
 public:
-    // the type of connection that is created
-    enum ConnectionType {
-        Inet, Bluetooth
-    };
 
     // default constructor
     Socket() = default;
@@ -47,21 +43,11 @@ public:
 
 protected:
 
-    ConnectionType conn_type = Inet;
-
     // socket file descriptor
     int sockfd = 0;
 
     int portno = -1;
 
-    int channelno = -1;
-
 };
-
-namespace BluetoothSocket {
-
-    std::unordered_map<std::string, std::string> scan_for_devices();
-
-}
 
 #endif // __SOCKET_HPP

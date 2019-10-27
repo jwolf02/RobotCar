@@ -20,9 +20,7 @@ public:
 
 	ServerSocket() = default;
 
-	ServerSocket(int port) : ServerSocket(Inet, port) {}
-
-	ServerSocket(Socket::ConnectionType type, int port_or_channel);
+	ServerSocket(int port);
 
 	~ServerSocket() override;
 

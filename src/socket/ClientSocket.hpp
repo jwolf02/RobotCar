@@ -12,7 +12,7 @@ public:
 
 	ClientSocket() = default;
 
-	explicit ClientSocket(Socket::ConnectionType type);
+	ClientSocket(const std::string &address, int port);
 
 	~ClientSocket() override;
 
