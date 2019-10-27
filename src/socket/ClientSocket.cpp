@@ -6,7 +6,6 @@
 #include <cstring>
 #include <cerrno>
 #include <socket_wrappers.hpp>
-#include <bluetooth/bluetooth.h>
 
 ClientSocket::ClientSocket(const std::string &address, int port) {
     connect(address, port);

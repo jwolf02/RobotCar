@@ -12,8 +12,6 @@
 #include <sys/types.h>
 #include <ctime>
 #include <stdexcept>
-#include <bluetooth/bluetooth.h>
-#include <bluetooth/rfcomm.h>
 
 class ServerSocket : public Socket {
 public:
