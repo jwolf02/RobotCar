@@ -3,15 +3,15 @@
 
 namespace controller {
 
-    constexpr int STOP = 0;
+    constexpr unsigned int STOP = 0;
 
-    constexpr int DRIVE_FORWARD = 1;
+    constexpr unsigned int DRIVE_FORWARD = 1;
 
-    constexpr int DRIVE_BACKWARD = 2;
+    constexpr unsigned int DRIVE_BACKWARD = 2;
 
-    constexpr int ROTATE_LEFT = 3;
+    constexpr unsigned int ROTATE_LEFT = 3;
 
-    constexpr int ROTATE_RIGHT = 4;
+    constexpr unsigned int ROTATE_RIGHT = 4;
 
     void setup();
 

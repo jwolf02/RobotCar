@@ -2,7 +2,7 @@
 #include <unordered_map>
 #include <fstream>
 
-const std::string config::DEFAULT_PATH = "./config.txt";
+const std::string config::DEFAULT_PATH = "config.txt";
 
 std::unordered_map<std::string, std::string> conf;
 
@@ -38,7 +38,7 @@ std::string config::get(const std::string &key) {
     if (contains(key)) {
         return conf[key];
     } else {
-        throw std::runtime_error("key not found: " + key);
+        throw std::runtime_error("cannot find key '" + key + "\' in config");
     }
 }
 

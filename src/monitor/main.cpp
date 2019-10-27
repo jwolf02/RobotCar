@@ -1,40 +1,23 @@
 #include <iostream>
 #include <ClientSocket.hpp>
-#include <cstring>
 #include <string>
 #include <terminal.hpp>
 #include <cstdio>
 #include <cstdlib>
 #include <vector>
 
-// operation modes
-#define DRIVE		0
-#define ROTATE		1
-
 #define PORT        8225
-
-void printMenu(int operation, double speed) {
-    terminal::clear();
-    const char *op = operation ? "ROTATE" : "DRIVE";
-    printf("operation:\t %s\n\r", op);
-    printf("speed:\t %.0f%%\n\r", speed * 100);
-}
 
 int main(int argc, const char *argv[]) {
 
     const std::vector<std::string> args(argv, argv + argc);
 
 	if (argc < 2) {
-		std::cout << "Usage: " << argv[0] << "[--bluetooth] <address>" << std::endl;
+		std::cout << "Usage: " << argv[0] << " <address>" << std::endl;
 		return 1;
 	}
 
-	Socket::ConnectionType type = Socket::Inet;
-	if (argc > 2 && strcmp(argv[1], "--bluetooth") == 0) {
-	    type = Socket::Bluetooth;
-	}
-
-    auto socket = ClientSocket(type);
+    auto socket = ClientSocket(Socket::Inet);
 
 	const std::string addr = argv[argc - 1];
     const int port = PORT;
@@ -46,35 +29,24 @@ int main(int argc, const char *argv[]) {
         std::cout << e.what() << std::endl;
         exit(1);
     }
-
 	std::cout << "connection established" << std::endl;
 
 	terminal::set_echo_off();
 	terminal::set_canonical_off();
 
-	printMenu(0, 0);
+	bool terminate = false;
+	char c=0x00;
 
-	char c;
-	while ((c = terminal::getch()) != 0x00) {
-        double speed = 0.0;
-        uint32_t operation = DRIVE;
-
+	while (!terminate && (c = terminal::getch()) != 0x00) {
 		try {
-		    // send input
 			socket.send(&c, 1);
-
-			// receive speed and mode of operation
-			socket.recv(&speed, sizeof(speed));
-			socket.recv(&operation, sizeof(operation));
-
 		} catch (std::exception &e) {
 			printf("%s\n\r", e.what());
 		}
 
-		printMenu(operation, speed);
-
-		if (c == 'x')
-		    break;
+		if (c == 'x') {
+		    terminate = true;
+		}
 	}
 
 	printf("connection closed\n\r");

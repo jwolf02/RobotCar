@@ -94,11 +94,6 @@ public:
           for (auto &e : array) {
               e = (T) dist(engine);
           }
-      } else if (util::is_integer_type<T>()) {
-          std::uniform_int_distribution<T> dist(std::numeric_limits<T>::min(), std::numeric_limits<T>::max());
-          for (auto &e : array) {
-              e = (T) dist(engine);
-          }
       }
 
       return array;
@@ -725,7 +720,7 @@ inline double dot(const vector<double> &X, const vector<double> &Y) {
 template <typename T>
 inline vector<T> dot(const matrix<T> &A, const vector<T> &X) {
   if (A.shape(1) != X.size())
-    throw std::runtime_error("shapes mismatch");
+    throw std::runtime_error(std::string("shapes mismatch ") + std::to_string(A.shape(1)) + " != " + std::to_string(X.size()));
 
   vector<T> Y(A.shape(0));
   for (size_t i = 0; i < A.shape(0); ++i) {

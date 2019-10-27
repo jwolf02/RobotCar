@@ -12,7 +12,7 @@ namespace config {
 
     bool contains(const std::string &key);
 
-    void set(const std::string &key, const std::string &value);
+    void set(const std::string &key, const std::string &value="");
 
     std::string get(const std::string &key);
 

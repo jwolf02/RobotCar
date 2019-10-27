@@ -6,6 +6,7 @@
 #define CHECK_MODIFIED_STATE        if (!state_modified) { \
                                         tcgetattr(STDIN_FILENO, &orig_termios); \
                                         atexit(restore_default); \
+                                        state_modified = true; \
                                     }
 
 // backup terminal settings
