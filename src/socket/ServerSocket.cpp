@@ -1,9 +1,8 @@
 #include <ServerSocket.hpp>
-#include <bluetooth/bluetooth.h>
 #include <socket_wrappers.hpp>
 
 ServerSocket::ServerSocket(int port) {
-    portno = port_or_channel;
+    portno = port;
 
     if ((connfd = socket(AF_INET, SOCK_STREAM, 0)) <= 0) {
         throw std::runtime_error(std::string("socket() ") + strerror(errno));
@@ -32,8 +31,8 @@ ServerSocket::~ServerSocket() {
 }
 
 void ServerSocket::waitForConnection() {
-    int addrlen = conn_type == Socket::Inet ? sizeof(inet_address) : sizeof(bt_address);
-    struct sockaddr *addr = conn_type == Socket::Inet ? (struct sockaddr *) &inet_address : (struct sockaddr *) &bt_address;
+    int addrlen = sizeof(inet_address);
+    struct sockaddr *addr = (struct sockaddr *) &inet_address;
 
     if ((sockfd = accept(connfd, addr, (socklen_t *) &addrlen)) < 0) {
         throw std::runtime_error(std::string("accept() ") + strerror(errno));

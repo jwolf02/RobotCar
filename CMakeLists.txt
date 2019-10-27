@@ -4,6 +4,8 @@ project(RobotCar)
 set(CMAKE_CXX_STANDARD	11)
 set(CMAKE_CXX_FLAGS		"${CMAKE_CXX_FLAGS} -Wall -pedantic -O2 -march=native -mtune=native -fpermissive")
 
+find_package(OpenCV REQUIRED)
+
 set(UTIL_INCLUDE		src/util/config.hpp
 						src/util/Tensor.hpp
 						src/util/VecND.hpp
@@ -76,7 +78,7 @@ set(CONTROLLER_SOURCES  src/controller/main.cpp
 
 add_executable(controller ${CONTROLLER_SOURCES})
 target_include_directories(controller PUBLIC ${SOCKET_INCLUDE_DIR} ${UTIL_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/src/controller)
-target_link_libraries(controller PUBLIC socket util driver pthread)
+target_link_libraries(controller PUBLIC socket util driver pthread ${OpenCV_LIBS})
 
 install(TARGETS monitor DESTINATION /usr/bin OPTIONAL)
 install(TARGETS controller DESTINATION /usr/bin OPTIONAL)

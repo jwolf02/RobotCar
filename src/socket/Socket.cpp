@@ -4,10 +4,8 @@
 #include <cerrno>
 #include <cstring>
 #include <socket_wrappers.hpp>
-#include <bluetooth/bluetooth.h>
-#include <bluetooth/hci.h>
-#include <bluetooth/hci_lib.h>
 #include <cstdint>
+#include <netinet/in.h>
 
 Socket::~Socket() {}
 
