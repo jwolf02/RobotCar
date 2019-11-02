@@ -12,7 +12,7 @@ void gpio::setup() {
     #ifdef RASPBERRY_PI
     wiringPiSetupGpio();
     #else
-    std::cout << "no gpio hardware" << std::endl;
+    std::cout << "no GPIO hardware support" << std::endl;
     #endif
 }
 
@@ -46,6 +46,7 @@ int gpio::pwm::create(int pin, int init_value, int range) {
         pwmSetRange(range);
         pwmSetClock(3840);
         pwmWrite(pin, 0);
+        return 0;
     } else {
         return softPwmCreate(pin, init_value, range);
     }

@@ -7,37 +7,35 @@
 class L298NHBridge {
 public:
 
-  L298NHBridge() = default;
+    L298NHBridge() = default;
 
-  L298NHBridge(int ENA, int IN1, int IN2, int IN3, int IN4, int ENB, double min_speed=0.3);
+    L298NHBridge(int ENA, int IN1, int IN2, int IN3, int IN4, int ENB, double min_speed=0.3);
 
-  ~L298NHBridge();
+    ~L298NHBridge();
 
-  void setup() const;
+    void setup();
 
-  void cleanup() const;
+    void cleanup();
 
-  // set speed of motor A from range [-1.0..1.0]
-  void setMotorA(double speed) const;
+    void setMotors(double motor_a_speed, double motor_b_speed);
 
-  // set speed of motor B from range [-1.0..1.0]
-  void setMotorB(double speed) const;
+    void stopMotors();
 
-  void setMotors(double motor_a_speed, double motor_b_speed) const;
+private:
 
-  void stopMotors() const;
+    void set_motor(int pin1, int pin2, int pwm, double speed);
 
-  int ENA = 0;
+    int ENA = 0;
 
-  int IN1 = 0;
+    int IN1 = 0;
 
-  int IN2 = 0;
+    int IN2 = 0;
 
-  int IN3 = 0;
+    int IN3 = 0;
 
-  int IN4 = 0;
+    int IN4 = 0;
 
-  int ENB = 0;
+    int ENB = 0;
 
   double min_speed = 0.0;
 
