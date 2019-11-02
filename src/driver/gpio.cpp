@@ -41,7 +41,7 @@ int gpio::read(int pin) {
 int gpio::pwm::create(int pin, int init_value, int range) {
     #ifdef RASPBERRY_PI
     // hardware pwm on pin 18
-    if (pin == 18) {
+    if (pin == -1) {
         pwmSetMode(PWM_MODE_MS);
         pwmSetRange(range);
         pwmSetClock(3840);
@@ -57,7 +57,7 @@ int gpio::pwm::create(int pin, int init_value, int range) {
 
 void gpio::pwm::set_value(int pin, int value) {
     #ifdef RASPBERRY_PI
-    if (pin == 18) {
+    if (pin == -1) {
         pwmWrite(pin, value);
     } else {
         softPwmWrite(pin, value);

@@ -6,7 +6,7 @@
 
 void L298NHBridge::set_motor(int pin1, int pin2, int pwm, double speed) {
     if (speed < -1.0 || speed > 1.0)
-        throw std::range_error("speed value out of range for motor A");
+        throw std::range_error("speed value out of range");
 
     if (speed > 0.0) {
         gpio::write(pin1, gpio::HIGH);
