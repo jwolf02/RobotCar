@@ -32,8 +32,6 @@ private:
 
 	struct sockaddr_in inet_address = { 0 };
 
-	struct sockaddr_rc bt_address = { 0 };
-
 };
 
 #endif // __SERVERSOCKET_HPP

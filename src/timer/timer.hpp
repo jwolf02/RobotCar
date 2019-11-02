@@ -36,9 +36,9 @@ namespace timer {
     void stop(timer_t timer);
 
     /*
-     * get the number of timers that expired while the signal handler was busy
+     * get number of overruns for timer
      */
-    unsigned int missed_timers();
+    unsigned int overruns(timer_t timer);
 }
 
 #endif // __TIMER_HPP

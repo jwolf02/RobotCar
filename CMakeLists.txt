@@ -1,10 +1,19 @@
 cmake_minimum_required(VERSION 3.5.1)
 project(RobotCar)
 
-set(CMAKE_CXX_STANDARD	11)
+set(CMAKE_CXX_STANDARD	14)
 set(CMAKE_CXX_FLAGS		"${CMAKE_CXX_FLAGS} -Wall -pedantic -O2 -march=native -mtune=native -fpermissive")
 
 find_package(OpenCV REQUIRED)
+find_package(Boost REQUIRED COMPONENTS system)
+
+if(RASPBERRY_PI)
+	message("-- building for Raspberry Pi")
+elseif(JETSON_NANO)
+	message("-- building for Jetson Nano")
+else()
+	message("-- building for default platform")
+endif()
 
 set(UTIL_INCLUDE		src/util/config.hpp
 						src/util/Tensor.hpp
@@ -12,7 +21,7 @@ set(UTIL_INCLUDE		src/util/config.hpp
 						src/util/SpinLock.hpp
 						src/util/terminal.hpp
 						src/util/util.hpp
-						src/util/Clock.hpp)
+						src/util/Clock.hpp src/util/Concurrent.hpp)
 
 set(UTIL_SOURCES		${UTIL_INCLUDE}
 						src/util/config.cpp
@@ -52,34 +61,36 @@ target_include_directories(timer PUBLIC ${TIMER_INCLUDE_DIR})
 target_link_libraries(timer PUBLIC rt pthread)
 
 set(DRIVER_INCLUDE 		src/driver/L298NHBridge.hpp
-						src/driver/HC_SR04.hpp
-						src/driver/MPU9250.hpp)
+						src/driver/gpio.hpp)
 
 set(DRIVER_SOURCES		${DRIVER_INCLUDE}
 						src/driver/L298NHBridge.cpp
-						src/driver/HC_SR04.cpp
-						src/driver/MPU9250.cpp)
+						src/driver/gpio.cpp)
 
 set(DRIVER_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/driver)
 
 add_library(driver STATIC ${DRIVER_SOURCES})
 target_include_directories(driver PUBLIC ${DRIVER_INCLUDE_DIR} ${UTIL_INCLUDE_DIR})
-target_link_libraries(driver PUBLIC util RTIMULib wiringPi)
+if (RASPBERRY_PI)
+	target_link_libraries(driver PUBLIC util RTIMULib wiringPi)
+else()
+	target_link_libraries(driver PUBLIC util)
+endif()
 
 set(MONITOR_SOURCES     src/monitor/main.cpp)
 
 add_executable(monitor ${MONITOR_SOURCES})
-target_include_directories(monitor PUBLIC ${UTIL_INCLUDE_DIR} ${SOCKET_INCLUDE_DIR})
-target_link_libraries(monitor socket util)
+target_include_directories(monitor PUBLIC ${UTIL_INCLUDE_DIR} ${SOCKET_INCLUDE_DIR} ${Boost_INCLUDE_DIR})
+target_link_libraries(monitor socket util ${OpenCV_LIBS} pthread ${Boost_LIBRARIES})
 
-set(CONTROLLER_SOURCES  src/controller/main.cpp
-						src/controller/controller.hpp
-						src/controller/controller.cpp)
+set(HOST_SOURCES  		src/host/main.cpp
+						src/host/controller.hpp
+						src/host/controller.cpp)
 
-add_executable(controller ${CONTROLLER_SOURCES})
-target_include_directories(controller PUBLIC ${SOCKET_INCLUDE_DIR} ${UTIL_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/src/controller)
-target_link_libraries(controller PUBLIC socket util driver pthread ${OpenCV_LIBS})
+add_executable(host ${HOST_SOURCES})
+target_include_directories(host PUBLIC ${SOCKET_INCLUDE_DIR} ${UTIL_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/src/host ${Boost_INCLUDE_DIR})
+target_link_libraries(host PUBLIC socket util driver pthread ${OpenCV_LIBS} ${Boost_LIBRARIES})
 
 install(TARGETS monitor DESTINATION /usr/bin OPTIONAL)
-install(TARGETS controller DESTINATION /usr/bin OPTIONAL)
+install(TARGETS host DESTINATION /usr/bin OPTIONAL)
 install(TARGETS socket DESTINATION /usr/lib)

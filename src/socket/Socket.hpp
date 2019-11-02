@@ -25,11 +25,15 @@ public:
     // send a string, the receiver has to call the appropriate function
     void send(const std::string &msg);
 
+    void send_message(const void *buf, size_t n);
+
     // read up to n bytes to the buffer
     size_t recv(void *buf, size_t n);
 
     // receive a message send with send(const std::string&)
     void recv(std::string &msg);
+
+    void recv_message(const void *buf);
 
     // see above
     std::string recv();

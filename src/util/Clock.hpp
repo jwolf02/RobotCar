@@ -11,7 +11,7 @@ public:
 
     template <typename T=std::chrono::seconds>
     static uint64_t time_since_epoch() {
-        return std::chrono::duration_cast<T>(std::chrono::system_clock::now().time_since_epoch());
+        return std::chrono::duration_cast<T>(std::chrono::system_clock::now().time_since_epoch()).count();
     }
 
     template <typename T=std::chrono::milliseconds>

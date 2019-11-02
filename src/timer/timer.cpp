@@ -8,6 +8,8 @@
 #include <queue>
 #include <atomic>
 
+#define SIGNAL  SIGALRM
+
 // using a hash map to provide amortised constant time access
 static std::unordered_map<timer_t, std::function<void (void)>> _map;
 
@@ -26,30 +28,22 @@ static std::mutex _mtx;
 // signal handler thread to wake up
 static std::condition_variable _cond;
 
-// number of unhandled timers
-static std::atomic_uint32_t _missed_timers(0);
-
 // flag to signal thread to execute
 static volatile bool _exec = false;
 
 static void _signal_handler(int signum, siginfo_t *siginfo, void *context) {
-    // only process signal if signal number is correct and
-    // there is currently no active signal handler executing
-    // this bears the small chance that timers expire without notice
-    static std::atomic_bool _flag(false);
-    bool t = true, f = false;
-    if (!_flag.compare_exchange_strong(f, t)) {
+    if (signum == SIGNAL) {
         auto timer_ptr = (timer_t *) siginfo->si_value.sival_ptr;
         auto it = _map.find(*timer_ptr);
         if (it != _map.end()) {
-            std::unique_lock<std::mutex> lock(_mtx);
+            it->second();
+            /*
+             std::unique_lock<std::mutex> lock(_mtx);
             _queue.push((*it).second);
             _mtx.unlock();
             _cond.notify_all();
+             */
         }
-        _flag = false;
-    } else {
-        _missed_timers += 1;
     }
 }
 
@@ -78,7 +72,7 @@ timer_t timer::create(const std::function<void (void)> &func, uint64_t expire_ti
     struct sigevent te = { 0 };
     struct sigaction sa = { 0 };
     auto timer = (timer_t *) new timer_t;
-    const int signum = SIGALRM;
+    const int signum = SIGNAL;
 
     // if it is the first call, register signal handler
     if (!_handler_setup) {
@@ -133,6 +127,6 @@ void timer::stop(timer_t timer) {
     timer_delete(timer);
 }
 
-unsigned int timer::missed_timers() {
-    return _missed_timers;
+unsigned int timer::overruns(timer_t timer) {
+    return timer_getoverrun(timer);
 }
