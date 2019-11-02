@@ -30,6 +30,7 @@ void gpio::write(int pin, int value) {
     #endif
 }
 
+
 int gpio::read(int pin) {
     #ifdef RASPBERRY_PI
     return digitalRead(pin);
