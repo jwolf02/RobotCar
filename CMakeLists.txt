@@ -9,6 +9,7 @@ find_package(Boost REQUIRED COMPONENTS system)
 
 if(RASPBERRY_PI)
 	message("-- building for Raspberry Pi")
+    add_definitions(-DRASPBERRY_PI)
 elseif(JETSON_NANO)
 	message("-- building for Jetson Nano")
 else()
