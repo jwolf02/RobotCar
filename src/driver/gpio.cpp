@@ -4,11 +4,14 @@
 #include <wiringPi.h>
 #elif JETSON_NANO
 #else
+#include <iostream>
 #endif
 
 void gpio::setup() {
     #ifdef RASPBERRY_PI
     wiringPiSetupGpio();
+    #else
+    std::cout << "no gpio hardware" << std::endl;
     #endif
 }
 
@@ -21,6 +24,8 @@ void gpio::setup_pin(int pin, int mode) {
 void gpio::write(int pin, int value) {
     #ifdef RASPBERRY_PI
     digitalWrite(pin, value);
+    #else
+    std::cout << "pin " << pin << " : " << (value ? "HIGH" : "LOW") << std::endl;
     #endif
 }
 
