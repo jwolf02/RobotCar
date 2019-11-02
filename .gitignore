@@ -1,6 +1,7 @@
 # IntelliJ IDEA
 .idea
 */.idea
+build
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
