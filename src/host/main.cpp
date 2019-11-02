@@ -1,10 +1,7 @@
-#include <ServerSocket.hpp>
 #include <util.hpp>
 #include <controller.hpp>
 #include <iostream>
 #include <map>
-#include <thread>
-#include <Clock.hpp>
 #include <opencv2/opencv.hpp>
 #include <atomic>
 #include <boost/asio.hpp>
