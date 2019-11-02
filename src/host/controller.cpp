@@ -29,7 +29,7 @@ typedef void (*action_t)();
 static const action_t actions[] = { _stop, _drive_forward, _drive_backward, _rotate_left, _rotate_right };
 
 void controller::setup() {
-    bridge = L298NHBridge(20, 6, 13, 19, 26, 21);
+    bridge = L298NHBridge(20, 6, 13, 19, 26, 16);
 }
 
 void controller::action(unsigned int action_number) {
