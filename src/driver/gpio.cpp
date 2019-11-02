@@ -2,6 +2,7 @@
 
 #ifdef RASPBERRY_PI
 #include <wiringPi.h>
+#include <softPwm.h>
 #elif JETSON_NANO
 #else
 #include <iostream>
@@ -40,7 +41,7 @@ int gpio::read(int pin) {
 int gpio::pwm::create(int pin, int init_value, int range) {
     #ifdef RASPBERRY_PI
     // hardware pwm on pin 18
-    if (pi == 18) {
+    if (pin == 18) {
         pwmSetMode(PWM_MODE_MS);
         pwmSetRange(range);
         pwmSetClock(3840);
