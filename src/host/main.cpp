@@ -120,7 +120,6 @@ int main(int argc, const char *argv[]) {
 
     if (terminated)
         socket.close();
-    controller::cleanup();
 
 	return EXIT_SUCCESS;
 }
