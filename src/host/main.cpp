@@ -30,7 +30,7 @@ int main(int argc, const char *argv[]) {
 
     const std::vector<std::string> args(argv, argv + argc);
 
-    L298NHBridge bridge;
+    L298NHBridge bridge(20, 6, 13, 19, 26, 16);
 
     // setup boost socket
     boost::asio::io_service io_service;
