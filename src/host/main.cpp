@@ -75,6 +75,7 @@ int main(int argc, const char *argv[]) {
     cv::Mat frame(WIDTH, HEIGHT, CV_8SC3);
     std::vector<unsigned char> buffer(WIDTH * HEIGHT * 3);
     boost::system::error_code error;
+    bool camera_enabled = true;
 
     // main control loop
 	do {
@@ -89,6 +90,8 @@ int main(int argc, const char *argv[]) {
                     std::cout << "connection terminated by peer" << std::endl;
                     terminated = true;
                     break;
+                } else if (c == 'c') {
+                    camera_enabled = !camera_enabled;
                 } else {
                     const auto it = actions.find(c);
                     if (it != actions.end()) {
@@ -106,17 +109,19 @@ int main(int argc, const char *argv[]) {
 	        break;
 	    }
 
-	    cv::imencode(".jpeg", frame, buffer);
+	    if (camera_enabled) {
+            cv::imencode(".jpeg", frame, buffer);
 
-	    const uint32_t n = buffer.size();
-	    SEND(socket, &n, sizeof(n), error);
-	    if (error) {
-	        break;
-	    }
-	    SEND(socket, buffer.data(), buffer.size(), error);
-	    if (error) {
-	        break;
-	    }
+            const uint32_t n = buffer.size();
+            SEND(socket, &n, sizeof(n), error);
+            if (error) {
+                break;
+            }
+            SEND(socket, buffer.data(), buffer.size(), error);
+            if (error) {
+                break;
+            }
+        }
 	} while (true);
     std::cout << "connection closed" << std::endl;
 

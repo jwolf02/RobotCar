@@ -48,42 +48,49 @@ int main(int argc, const char *argv[]) {
     cv::Mat frame;
     std::vector<unsigned char> buffer(256 * 256 * 3);
     int i = 0;
+    bool camera_enabled = true;
+
     do {
         Clock clock;
         clock.start();
         boost::system::error_code error;
 
-        // read size of encoded image from socket
-        uint32_t n;
-        RECV(socket, &n, sizeof(n), error);
-        if (error) {
-            exit(1);
+        if (camera_enabled) {
+            // read size of encoded image from socket
+            uint32_t n;
+            RECV(socket, &n, sizeof(n), error);
+            if (error) {
+                exit(1);
+            }
+            buffer.reserve(n);
+
+            // read encoded image from socket
+            RECV(socket, buffer.data(), n, error);
+            if (error) {
+                exit(1);
+            }
+
+            // decode and display frame
+            cv::imdecode(buffer, cv::IMREAD_COLOR, &frame);
+            cv::Mat scaled_frame;
+            cv::resize(frame, scaled_frame, cv::Size(), 2, 2);
+
+            cv::imshow("monitor", scaled_frame);
         }
-        buffer.reserve(n);
-
-        // read encoded image from socket
-        RECV(socket, buffer.data(), n, error);
-        if (error) {
-            exit(1);
-        }
-
-        // decode and display frame
-        cv::imdecode(buffer, cv::IMREAD_COLOR, &frame);
-        cv::Mat scaled_frame;
-        cv::resize(frame, scaled_frame, cv::Size(), 2, 2);
-
-        cv::imshow("monitor", scaled_frame);
 
         // read control character from keyboard
-        char key = (char) cv::waitKey(1) & 0xff;
+        const char key = (char) (cv::waitKey(1) & 0xff);
         if (key != -1) {
             SEND(socket, &key, 1, error);
             if (error) {
                 exit(1);
             }
 
-            if (key == 'x')
+            if (key == 'x') {
                 break;
+            } else if (key == 'c') {
+                camera_enabled = !camera_enabled;
+            }
         }
         clock.stop();
         if (i == 5) {
