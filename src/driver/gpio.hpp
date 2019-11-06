@@ -3,11 +3,6 @@
 
 namespace gpio {
 
-    extern const int OUTPUT;
-    extern const int INPUT;
-    extern const int LOW;
-    extern const int HIGH;
-
     void setup();
 
     void setup_pin(int pin, int mode);

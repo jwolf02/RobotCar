@@ -3,17 +3,9 @@
 #ifdef RASPBERRY_PI
 #include <wiringPi.h>
 #include <softPwm.h>
-const int gpio::OUTPUT = OUT;
-const int gpio::INPUT = IN;
-const int gpio::LOW = LOW;
-const int gpio::HIGH = HIGH;
 #elif JETSON_NANO
 #else
 #include <iostream>
-const int gpio::OUTPUT = -1;
-const int gpio::INPUT = -1;
-const int gpio::LOW = -1;
-const int gpio::HIGH = -1;
 #endif
 
 void gpio::setup() {
@@ -26,13 +18,13 @@ void gpio::setup() {
 
 void gpio::setup_pin(int pin, int mode) {
     #ifdef RASPBERRY_PI
-    pinMode(pin, mode);
+    pinMode(pin, mode == gpio::OUTPUT ? OUT : IN);
     #endif
 }
 
 void gpio::write(int pin, int value) {
     #ifdef RASPBERRY_PI
-    digitalWrite(pin, value);
+    digitalWrite(pin, value ? HIGH : LOW);
     #else
     std::cout << "pin " << pin << " : " << (value ? "HIGH" : "LOW") << std::endl;
     #endif
@@ -42,7 +34,7 @@ int gpio::read(int pin) {
     #ifdef RASPBERRY_PI
     return digitalRead(pin);
     #else
-    return LOW;
+    return 0;
     #endif
 }
 
