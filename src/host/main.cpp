@@ -1,10 +1,11 @@
-#include <util.hpp>
-#include <controller.hpp>
 #include <iostream>
 #include <map>
-#include <opencv2/opencv.hpp>
 #include <atomic>
+#include <functional>
+#include <opencv2/opencv.hpp>
 #include <boost/asio.hpp>
+#include <util.hpp>
+#include <L298NHBridge.hpp>
 
 using boost::asio::ip::tcp;
 
@@ -29,7 +30,7 @@ int main(int argc, const char *argv[]) {
 
     const std::vector<std::string> args(argv, argv + argc);
 
-    controller::setup();
+    L298NHBridge bridge;
 
     // setup boost socket
     boost::asio::io_service io_service;
@@ -61,12 +62,12 @@ int main(int argc, const char *argv[]) {
     camera.set(cv::CAP_PROP_FPS, FPS);
 
     // map keyboard inputs to actions for host
-	const std::map<char, unsigned int> actions = {
-            { 'q', controller::STOP },
-            { 'w', controller::DRIVE_FORWARD },
-            { 's', controller::DRIVE_BACKWARD },
-            { 'a', controller::ROTATE_LEFT },
-            { 'd', controller::ROTATE_RIGHT }
+	const std::map<char, std::function<void (void)>> actions = {
+            { 'q', [&]{ bridge.stop_motors(); }},
+            { 'w', [&]{ bridge.set_motors(1.0, 1.0); }},
+            { 's', [&]{ bridge.set_motors(-1.0, -1.0); }},
+            { 'a', [&]{ bridge.set_motors(-1.0, 1.0); }},
+            { 'd', [&]{ bridge.set_motors(1.0, -1.0); }}
 	};
 
     bool terminated = false;
@@ -91,7 +92,8 @@ int main(int argc, const char *argv[]) {
                 } else {
                     const auto it = actions.find(c);
                     if (it != actions.end()) {
-                        controller::action(it->second);
+                        const auto &func = it->second;
+                        func();
                     } else {
                         std::cout << "unrecognized action \'" << c << '\'' << std::endl;
                     }
@@ -118,8 +120,9 @@ int main(int argc, const char *argv[]) {
 	} while (true);
     std::cout << "connection closed" << std::endl;
 
-    if (terminated)
+    if (terminated) {
         socket.close();
+    }
 
 	return EXIT_SUCCESS;
 }
