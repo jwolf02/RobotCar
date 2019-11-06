@@ -64,10 +64,10 @@ int main(int argc, const char *argv[]) {
     // map keyboard inputs to actions for host
 	const std::map<char, std::function<void (void)>> actions = {
             { 'q', [&]{ bridge.stop_motors(); }},
-            { 'w', [&]{ bridge.set_motors(1.0, 1.0); }},
-            { 's', [&]{ bridge.set_motors(-1.0, -1.0); }},
-            { 'a', [&]{ bridge.set_motors(-1.0, 1.0); }},
-            { 'd', [&]{ bridge.set_motors(1.0, -1.0); }}
+            { 'w', [&]{ bridge.set_motors(-1.0, 1.0); }},
+            { 's', [&]{ bridge.set_motors(1.0, -1.0); }},
+            { 'a', [&]{ bridge.set_motors(1.0, 1.0); }},
+            { 'd', [&]{ bridge.set_motors(-1.0, -1.0); }}
 	};
 
     bool terminated = false;
