@@ -11,10 +11,6 @@
 #define PWM_CREATE(pin, init, range)    gpio::pwm::create(pin, init, range)
 #define PWM_WRITE(pin, val)             gpio::pwm::set_value(pin, val)
 
-L298NHBridge::~L298NHBridge() {
-    cleanup();
-}
-
 void L298NHBridge::set_motor(int pin1, int pin2, int pwm, double speed) {
     if (speed < -1.0 || speed > 1.0) {
         throw std::range_error("speed value out of range");
