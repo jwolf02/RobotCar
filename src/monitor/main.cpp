@@ -54,10 +54,10 @@ int main(int argc, const char *argv[]) {
         Clock clock;
         clock.start();
         boost::system::error_code error;
+        uint32_t n;
 
         if (camera_enabled) {
             // read size of encoded image from socket
-            uint32_t n;
             RECV(socket, &n, sizeof(n), error);
             if (error) {
                 exit(1);
@@ -94,8 +94,10 @@ int main(int argc, const char *argv[]) {
         }
         clock.stop();
         if (i == 5) {
-            std::cout << '\r' << (int) ((1.0 / clock.milliseconds()) * 1000.0) << " frames/s, "
-                      << (int) ((double(n) / clock.milliseconds())) << " KB/s      " << std::flush;
+            if (camera_enabled) {
+                std::cout << '\r' << (int) ((1.0 / clock.milliseconds()) * 1000.0) << " frames/s, "
+                          << (int) ((double(n) / clock.milliseconds())) << " KB/s      " << std::flush;
+            }
             i = 0;
         } else {
             ++i;

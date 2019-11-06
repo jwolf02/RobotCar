@@ -92,6 +92,7 @@ int main(int argc, const char *argv[]) {
                     break;
                 } else if (c == 'c') {
                     camera_enabled = !camera_enabled;
+                    std::cout << "camera turned " << (camera_enabled ? "ON" : "OFF") << std::endl;
                 } else {
                     const auto it = actions.find(c);
                     if (it != actions.end()) {
