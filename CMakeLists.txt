@@ -56,9 +56,7 @@ add_executable(monitor ${MONITOR_SOURCES})
 target_include_directories(monitor PUBLIC ${UTIL_INCLUDE_DIR} ${Boost_INCLUDE_DIR})
 target_link_libraries(monitor util ${OpenCV_LIBS} pthread ${Boost_LIBRARIES})
 
-set(HOST_SOURCES  		src/host/main.cpp
-						src/host/controller.hpp
-						src/host/controller.cpp)
+set(HOST_SOURCES  		src/host/main.cpp)
 
 add_executable(host ${HOST_SOURCES})
 target_include_directories(host PUBLIC ${UTIL_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/src/host ${Boost_INCLUDE_DIR})
