@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cmath>
 #include <iostream>
+#include <initializer_list>
 
 template <size_t N, typename value_t>
 class VecND {
@@ -14,7 +15,9 @@ public:
     typedef value_t&        reference;
     typedef const value_t&  const_reference;
 
-    static_assert(N > 0, "VecND dimension must not be 0");
+    static_assert(std::is_fundamental<value_t>::value && std::is_arithmetic<value_t>::value,
+            "wrapped type must be fundamental and arithmetic");
+    static_assert(N > 0, "VecND dimension must not be >=1");
 
     VecND() = default;
 
@@ -41,6 +44,10 @@ public:
         }
     }
 
+    VecND(const std::initializer_list<value_t> &list) {
+        *this = list;
+    }
+
     template <size_t M, typename assign_t>
     VecND& operator=(const VecND<M, assign_t> &vec) {
         for (size_t i = 0; i < std::min(N, M); ++i) {
@@ -48,6 +55,13 @@ public:
         }
         for (size_t i = std::min(N, M); i < N; ++i) {
             _v[i] = 0;
+        }
+    }
+
+    VecND& operator=(const std::initializer_list<value_t> &list) {
+        size_t i = 0;
+        for (const auto &v : list) {
+            _v[i++] = v;
         }
     }
 
@@ -60,12 +74,10 @@ public:
     }
 
     bool operator==(const VecND &vec) const {
-        for (size_t i = 0; i < N; ++i) {
-            if (_v[i] != vec[i]) {
-                return false;
-            }
-        }
-        return true;
+        size_t i = 0;
+        while (i < N && _v[i] == vec[i])
+            ++i;
+        return i == N;
     }
 
     bool operator!=(const VecND &vec) const {
@@ -157,7 +169,7 @@ public:
     }
 
     value_t abs() const {
-        return (*this) * (*this);
+        return std::sqrt((*this) * (*this));
     }
 
     VecND norm() const {
@@ -168,7 +180,7 @@ public:
         *this = norm();
     }
 
-    [[nodiscard]] size_t dimension() const {
+    size_t dimension() const {
         return N;
     }
 
@@ -181,7 +193,7 @@ public:
         for (size_t i = 0; i < N; ++i) {
             os << vec[i];
             if ((i + 1) != N) {
-                os << ", ";
+                os << ',' << ' ';
             }
         }
         os << ')';

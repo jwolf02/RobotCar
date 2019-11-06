@@ -2,8 +2,8 @@
 #define __L298NHBridge_HPP
 
 // Wrapper for the L298N Dual H-Bridge
-// motor A in assumed to be connected to (ENB, IN3, IN4)
-// motor B is assumed to be connected to (ENA, IN1, IN2)
+// motor A in assumed to be connected to (ENA, IN1, IN2)
+// motor B is assumed to be connected to (ENB, IN4, IN3)
 class L298NHBridge {
 public:
 
@@ -13,15 +13,15 @@ public:
 
     ~L298NHBridge();
 
+    void set_motors(double motor_a_speed, double motor_b_speed);
+
+    void stop_motors();
+
+private:
+
     void setup();
 
     void cleanup();
-
-    void setMotors(double motor_a_speed, double motor_b_speed);
-
-    void stopMotors();
-
-private:
 
     void set_motor(int pin1, int pin2, int pwm, double speed);
 
@@ -37,7 +37,7 @@ private:
 
     int ENB = 0;
 
-  double min_speed = 0.0;
+    double min_speed = 0.0;
 
 };
 

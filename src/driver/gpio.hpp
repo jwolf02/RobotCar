@@ -3,11 +3,10 @@
 
 namespace gpio {
 
-    constexpr int OUTPUT = 0;
-    constexpr int INPUT = 1;
-
-    constexpr int LOW = 0;
-    constexpr int HIGH = 1;
+    extern const int OUTPUT;
+    extern const int INPUT;
+    extern const int LOW;
+    extern const int HIGH;
 
     void setup();
 
