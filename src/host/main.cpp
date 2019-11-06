@@ -26,6 +26,9 @@ using boost::asio::ip::tcp;
 #define WIDTH       320
 #define HEIGHT      240
 
+#define R_SPEED     0.6
+#define D_SPEED     0.8
+
 int main(int argc, const char *argv[]) {
 
     const std::vector<std::string> args(argv, argv + argc);
@@ -64,10 +67,10 @@ int main(int argc, const char *argv[]) {
     // map keyboard inputs to actions for host
 	const std::map<char, std::function<void (void)>> actions = {
             { 'q', [&]{ bridge.stop_motors(); }},
-            { 'w', [&]{ bridge.set_motors(-0.8, 0.8); }},
-            { 's', [&]{ bridge.set_motors(0.8, -0.8); }},
-            { 'a', [&]{ bridge.set_motors(0.7, 0.7); }},
-            { 'd', [&]{ bridge.set_motors(-0.7, -0.7); }}
+            { 'w', [&]{ bridge.set_motors(-D_SPEED, D_SPEED); }},
+            { 's', [&]{ bridge.set_motors(D_SPEED, -D_SPEED); }},
+            { 'a', [&]{ bridge.set_motors(R_SPEED, R_SPEED); }},
+            { 'd', [&]{ bridge.set_motors(-R_SPEED, -R_SPEED); }}
 	};
 
     bool terminated = false;
