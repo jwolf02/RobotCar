@@ -2,71 +2,68 @@
 #include <stdexcept>
 #include <cmath>
 
-#include <gpio.hpp>
+#ifdef RASPBERRY_PI
+#include <wiringPi.h>
+#include <softPwm.h>
+#endif
 
-#define SETUP(pin, mode)            gpio::setup_pin(pin, mode)
-#define WRITE(pin, val)             gpio::write(pin, val)
-#define READ(pin, val)              gpio::read(pin, val)
+L298NHBridge::L298NHBridge(int ENA, int IN1, int IN2, int IN3, int IN4, int ENB, double min_speed) {
+    this->ENA = ENA;
+    this->IN1 = IN1;
+    this->IN2 = IN2;
+    this->IN3 = IN3;
+    this->IN4 = IN4;
+    this->ENB = ENB;
 
-#define PWM_CREATE(pin, init, range)    gpio::pwm::create(pin, init, range)
-#define PWM_WRITE(pin, val)             gpio::pwm::set_value(pin, val)
+    if (min_speed < 0.0 || min_speed > 1.0) {
+        throw std::range_error("min_speed out of scope");
+    } else {
+        this->min_speed = min_speed;
+    }
+
+    #ifdef RASPBERRY_PI
+    pinMode(ENA, OUT);
+    pinMode(IN1, OUT);
+    pinMode(IN2, OUT);
+    pinMode(IN3, OUT);
+    pinMode(IN4, OUT);
+    pinMode(ENB, OUT);
+    softPwmCreate(ENA, 0, 100);
+    softPwmCreate(ENB, 0, 100);
+    #endif
+}
+
+L298NHBridge::~L298NHBridge() {
+    #ifdef RASPBERRY_PI
+    digitalWrite(IN1, LOW);
+    digitalWrite(IN2, LOW);
+    digitalWrite(IN3, LOW);
+    digitalWrite(IN4, LOW);
+    softPwmWrite(ENA, LOW);
+    softPwmWrite(ENB, LOW);
+    #endif
+}
 
 void L298NHBridge::set_motor(int pin1, int pin2, int pwm, double speed) {
     if (speed < -1.0 || speed > 1.0) {
         throw std::range_error("speed value out of range");
     }
 
+    #ifdef RASPBERRY_PI
     if (speed > 0.0) {
-        WRITE(pin1, 1);
-        WRITE(pin2, 0);
+        digitalWrite(pin1, HIGH);
+        digitalWrite(pin2, LOW);
     } else if (speed < 0.0) {
-        WRITE(pin1, 0);
-        WRITE(pin2, 1);
+        digitalWrite(pin1, LOW);
+        digitalWrite(pin2, HIGH);
     } else {
-        WRITE(pin1, 0);
-        WRITE(pin2, 0);
+        digitalWrite(pin1, LOW);
+        digitalWrite(pin2, LOW);
     }
 
-    int value = speed != 0.0 ? static_cast<int>((std::abs(speed) * (1.0 - min_speed) + min_speed) * 100) : 0.0;
-    PWM_WRITE(pwm, value);
-}
-
-L298NHBridge::L298NHBridge(int ENA, int IN1, int IN2, int IN3, int IN4, int ENB, double min_speed) {
-  this->ENA = ENA;
-  this->IN1 = IN1;
-  this->IN2 = IN2;
-  this->IN3 = IN3;
-  this->IN4 = IN4;
-  this->ENB = ENB;
-  if (min_speed < 0.0 || min_speed > 1.0)
-    throw std::range_error("min_speed out of scope");
-  else
-    this->min_speed = min_speed;
-  setup();
-}
-
-L298NHBridge::~L298NHBridge() {
-    cleanup();
-}
-
-void L298NHBridge::cleanup() {
-    WRITE(IN1, 0);
-    WRITE(IN2, 0);
-    WRITE(IN3, 0);
-    WRITE(IN4, 0);
-    PWM_WRITE(ENA, 0);
-    PWM_WRITE(ENB, 0);
-}
-
-void L298NHBridge::setup() {
-    SETUP(ENA, gpio::OUTPUT);
-    SETUP(IN1, gpio::OUTPUT);
-    SETUP(IN2, gpio::OUTPUT);
-    SETUP(IN3, gpio::OUTPUT);
-    SETUP(IN4, gpio::OUTPUT);
-    SETUP(ENB, gpio::OUTPUT);
-    PWM_CREATE(ENA, 0, 100);
-    PWM_CREATE(ENB, 0, 100);
+    const int value = speed != 0.0 ? int((std::abs(speed) * (1.0 - min_speed) + min_speed) * 100.0) : 0;
+    softPwmWrite(pwm, value);
+    #endif
 }
 
 void L298NHBridge::set_motors(double motor_a_speed, double motor_b_speed) {

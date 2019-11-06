@@ -34,11 +34,11 @@ add_library(util STATIC ${UTIL_SOURCES})
 target_include_directories(util PUBLIC ${UTIL_INCLUDE_DIR})
 
 set(DRIVER_INCLUDE 		src/driver/L298NHBridge.hpp
-						src/driver/gpio.hpp)
+						src/driver/HC_SR04.hpp)
 
 set(DRIVER_SOURCES		${DRIVER_INCLUDE}
 						src/driver/L298NHBridge.cpp
-						src/driver/gpio.cpp)
+						src/driver/HC_SR04.cpp)
 
 set(DRIVER_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/driver)
 

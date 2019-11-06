@@ -19,10 +19,6 @@ public:
 
 private:
 
-    void setup();
-
-    void cleanup();
-
     void set_motor(int pin1, int pin2, int pwm, double speed);
 
     int ENA = 0;
