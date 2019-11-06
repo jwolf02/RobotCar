@@ -24,10 +24,13 @@ using boost::asio::ip::tcp;
 
 #define FPS         10
 
+// frame size
 #define WIDTH       320
 #define HEIGHT      240
 
+// rotation speed
 #define R_SPEED     0.6
+// driving speed
 #define D_SPEED     0.8
 
 int main(int argc, const char *argv[]) {

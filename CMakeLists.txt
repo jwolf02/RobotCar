@@ -16,22 +16,7 @@ else()
 	message("-- building for default platform")
 endif()
 
-set(UTIL_INCLUDE		src/util/config.hpp
-						src/util/Tensor.hpp
-						src/util/VecND.hpp
-						src/util/SpinLock.hpp
-						src/util/terminal.hpp
-						src/util/util.hpp
-						src/util/Clock.hpp)
-
-set(UTIL_SOURCES		${UTIL_INCLUDE}
-						src/util/config.cpp
-						src/util/terminal.cpp)
-
 set(UTIL_INCLUDE_DIR	${CMAKE_CURRENT_SOURCE_DIR}/src/util)
-
-add_library(util STATIC ${UTIL_SOURCES})
-target_include_directories(util PUBLIC ${UTIL_INCLUDE_DIR})
 
 set(DRIVER_INCLUDE 		src/driver/L298NHBridge.hpp
 						src/driver/HC_SR04.hpp)
@@ -45,22 +30,20 @@ set(DRIVER_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/driver)
 add_library(driver STATIC ${DRIVER_SOURCES})
 target_include_directories(driver PUBLIC ${DRIVER_INCLUDE_DIR} ${UTIL_INCLUDE_DIR})
 if (RASPBERRY_PI)
-	target_link_libraries(driver PUBLIC util wiringPi)
-else()
-	target_link_libraries(driver PUBLIC util)
+	target_link_libraries(driver PUBLIC wiringPi)
 endif()
 
 set(MONITOR_SOURCES     src/monitor/main.cpp)
 
 add_executable(rcmonitor ${MONITOR_SOURCES})
 target_include_directories(rcmonitor PUBLIC ${UTIL_INCLUDE_DIR} ${Boost_INCLUDE_DIR})
-target_link_libraries(rcmonitor util ${OpenCV_LIBS} pthread ${Boost_LIBRARIES})
+target_link_libraries(rcmonitor pthread ${OpenCV_LIBS} ${Boost_LIBRARIES})
 
 set(HOST_SOURCES  		src/host/main.cpp)
 
 add_executable(rchost ${HOST_SOURCES})
 target_include_directories(rchost PUBLIC ${UTIL_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/src/host ${Boost_INCLUDE_DIR})
-target_link_libraries(rchost PUBLIC util driver pthread ${OpenCV_LIBS} ${Boost_LIBRARIES})
+target_link_libraries(rchost PUBLIC driver pthread ${OpenCV_LIBS} ${Boost_LIBRARIES})
 
 install(TARGETS rcmonitor DESTINATION /usr/bin OPTIONAL)
 install(TARGETS rchost DESTINATION /usr/bin OPTIONAL)
