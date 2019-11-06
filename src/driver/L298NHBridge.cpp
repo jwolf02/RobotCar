@@ -22,10 +22,12 @@ L298NHBridge::L298NHBridge(int ENA, int IN1, int IN2, int IN3, int IN4, int ENB,
     }
 
     #ifdef RASPBERRY_PI
-    pinMode(IN1, OUT);
-    pinMode(IN2, OUT);
-    pinMode(IN3, OUT);
-    pinMode(IN4, OUT);
+    pinMode(ENA, OUTPUT);
+    pinMode(IN1, OUTPUT);
+    pinMode(IN2, OUTPUT);
+    pinMode(IN3, OUTPUT);
+    pinMode(IN4, OUTPUT);
+    pinMode(ENB, OUTPUT);
     softPwmCreate(ENA, 0, 100);
     softPwmCreate(ENB, 0, 100);
     #endif
