@@ -45,7 +45,7 @@ int main(int argc, const char *argv[]) {
 
     cv::namedWindow("monitor", cv::WINDOW_AUTOSIZE);
 
-    cv::Mat frame;
+    cv::Mat frame, scaled_frame;
     std::vector<unsigned char> buffer(256 * 256 * 3);
     int i = 0;
     bool camera_enabled = true;
@@ -54,7 +54,7 @@ int main(int argc, const char *argv[]) {
         Clock clock;
         clock.start();
         boost::system::error_code error;
-        uint32_t n;
+        uint32_t n = 0;
 
         if (camera_enabled) {
             // read size of encoded image from socket
@@ -72,7 +72,6 @@ int main(int argc, const char *argv[]) {
 
             // decode and display frame
             cv::imdecode(buffer, cv::IMREAD_COLOR, &frame);
-            cv::Mat scaled_frame;
             cv::resize(frame, scaled_frame, cv::Size(), 2, 2);
 
             cv::imshow("monitor", scaled_frame);

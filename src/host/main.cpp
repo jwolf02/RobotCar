@@ -2,9 +2,10 @@
 #include <map>
 #include <atomic>
 #include <functional>
+#include <vector>
+#include <string>
 #include <opencv2/opencv.hpp>
 #include <boost/asio.hpp>
-#include <util.hpp>
 #include <L298NHBridge.hpp>
 
 using boost::asio::ip::tcp;
