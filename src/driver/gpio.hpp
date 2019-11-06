@@ -3,6 +3,9 @@
 
 namespace gpio {
 
+    constexpr int INPUT = 0;
+    constexpr int OUTPUT = 1;
+
     void setup();
 
     void setup_pin(int pin, int mode);
