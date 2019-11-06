@@ -3,6 +3,10 @@
 #ifdef RASPBERRY_PI
 #include <wiringPi.h>
 #include <softPwm.h>
+#define LOW_VAL     LOW
+#define HIGH_VAL    HIGH
+#undef LOW
+#undef HIGH
 #elif JETSON_NANO
 #else
 #include <iostream>
@@ -24,7 +28,7 @@ void gpio::setup_pin(int pin, int mode) {
 
 void gpio::write(int pin, int value) {
     #ifdef RASPBERRY_PI
-    digitalWrite(pin, value ? HIGH : LOW);
+    digitalWrite(pin, value ? HIGH_VAL : LOW_VAL);
     #else
     std::cout << "pin " << pin << " : " << (value ? "HIGH" : "LOW") << std::endl;
     #endif
