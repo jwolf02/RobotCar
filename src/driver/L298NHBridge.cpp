@@ -17,14 +17,14 @@ void L298NHBridge::set_motor(int pin1, int pin2, int pwm, double speed) {
     }
 
     if (speed > 0.0) {
-        WRITE(pin1, gpio::HIGH);
-        WRITE(pin2, gpio::LOW);
+        WRITE(pin1, 1);
+        WRITE(pin2, 0);
     } else if (speed < 0.0) {
-        WRITE(pin1, gpio::LOW);
-        WRITE(pin2, gpio::HIGH);
+        WRITE(pin1, 0);
+        WRITE(pin2, 1);
     } else {
-        WRITE(pin1, gpio::LOW);
-        WRITE(pin2, gpio::LOW);
+        WRITE(pin1, 0);
+        WRITE(pin2, 0);
     }
 
     int value = speed != 0.0 ? static_cast<int>((std::abs(speed) * (1.0 - min_speed) + min_speed) * 100) : 0.0;
@@ -50,10 +50,10 @@ L298NHBridge::~L298NHBridge() {
 }
 
 void L298NHBridge::cleanup() {
-    WRITE(IN1, gpio::LOW);
-    WRITE(IN2, gpio::LOW);
-    WRITE(IN3, gpio::LOW);
-    WRITE(IN4, gpio::LOW);
+    WRITE(IN1, 0);
+    WRITE(IN2, 0);
+    WRITE(IN3, 0);
+    WRITE(IN4, 0);
     PWM_WRITE(ENA, 0);
     PWM_WRITE(ENB, 0);
 }
