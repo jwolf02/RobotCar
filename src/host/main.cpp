@@ -4,9 +4,11 @@
 #include <functional>
 #include <vector>
 #include <string>
+#include <csignal>
 #include <opencv2/opencv.hpp>
 #include <boost/asio.hpp>
 #include <L298NHBridge.hpp>
+#include <util.hpp>
 
 using boost::asio::ip::tcp;
 
@@ -33,18 +35,29 @@ using boost::asio::ip::tcp;
 // driving speed
 #define D_SPEED     0.8
 
+static void signal_handler(int signum) {
+    exit(1);
+}
+
 int main(int argc, const char *argv[]) {
 
     const std::vector<std::string> args(argv, argv + argc);
+    const int port = args.size() >= 2 ? util::strto<int>(args[1]) : PORT;
 
     L298NHBridge bridge(20, 6, 13, 19, 26, 21);
 
+    if (signal(SIGINT, signal_handler) == SIG_ERR) {
+        std::cout << "cannot setup signal handler" << std::endl;
+        exit(1);
+    }
+
     // setup boost socket
     boost::asio::io_service io_service;
-    tcp::acceptor acceptor(io_service, tcp::endpoint(tcp::v4(), PORT));
+    tcp::acceptor acceptor(io_service, tcp::endpoint(tcp::v4(), port));
     tcp::socket socket(io_service);
 
     // connect to client
+    std::cout << "listening on port " << port << std::endl;
     std::cout << "waiting for connection..." << std::endl;
     try {
         acceptor.accept(socket);
@@ -67,6 +80,10 @@ int main(int argc, const char *argv[]) {
     camera.set(cv::CAP_PROP_FRAME_WIDTH, WIDTH);
     camera.set(cv::CAP_PROP_FRAME_HEIGHT, HEIGHT);
     camera.set(cv::CAP_PROP_FPS, FPS);
+
+    std::cout << "frame_size=(" << camera.get(cv::CAP_PROP_FRAME_WIDTH) << ", "
+                << camera.get(cv::CAP_PROP_FRAME_HEIGHT)
+                << "), FPS=" << camera.get(cv::CAP_PROP_FPS) << std::endl;
 
     // map keyboard inputs to actions for host
 	const std::map<char, std::function<void (void)>> actions = {
@@ -120,7 +137,7 @@ int main(int argc, const char *argv[]) {
 	    if (camera_enabled) {
             cv::imencode(".jpeg", frame, buffer);
 
-            const uint32_t n = buffer.size();
+            const uint32_t n = htonl((uint32_t) buffer.size());
             SEND(socket, &n, sizeof(n), error);
             if (error) {
                 break;
@@ -133,7 +150,7 @@ int main(int argc, const char *argv[]) {
 	} while (true);
     std::cout << "connection closed" << std::endl;
 
-    if (terminated) {
+    if (socket.is_open()) {
         socket.close();
     }
 

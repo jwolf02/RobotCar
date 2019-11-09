@@ -1,6 +1,7 @@
 #include <L298NHBridge.hpp>
 #include <stdexcept>
 #include <cmath>
+#include <gpio.hpp>
 
 #ifdef RASPBERRY_PI
 #include <wiringPi.h>
@@ -73,5 +74,5 @@ void L298NHBridge::set_motors(double motor_a_speed, double motor_b_speed) {
 }
 
 void L298NHBridge::stop_motors() {
-  set_motors(0.0, 0.0);
+    set_motors(0.0, 0.0);
 }
