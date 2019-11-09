@@ -1,10 +1,10 @@
-#ifndef __WORKER_H
-#define __WORKER_H
+#ifndef __MONITOR_HPP
+#define __MONITOR_HPP
 
 #include <string>
-#include <monitorwindow.h>
+#include <MonitorWindow.hpp>
 
-namespace worker {
+namespace monitor {
 
     extern MonitorWindow *window;
 
@@ -18,4 +18,4 @@ namespace worker {
 
 }
 
-#endif // __WORKER_H
+#endif // __MONITOR_HPP

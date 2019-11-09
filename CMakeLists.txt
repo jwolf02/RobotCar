@@ -50,11 +50,11 @@ if (RASPBERRY_PI)
 endif()
 
 set(MONITOR_SOURCES		src/monitor/main.cpp
-						src/monitor/monitorwindow.h
-						src/monitor/monitorwindow.cpp
-						src/monitor/monitorwindow.ui
-						src/monitor/worker.cpp
-						src/monitor/worker.h)
+						src/monitor/MonitorWindow.hpp
+						src/monitor/MonitorWindow.cpp
+						src/monitor/MonitorWindow.ui
+		src/monitor/monitor.cpp
+		src/monitor/monitor.hpp)
 
 # monitor executable
 add_executable(rcmonitor-ui ${MONITOR_SOURCES})

@@ -1,28 +1,24 @@
-#include "monitorwindow.h"
-#include "ui_monitorwindow.h"
-#include<unistd.h>
-#include <worker.h>
+#include <MonitorWindow.hpp>
+#include <ui_MonitorWindow.h>
+#include <monitor.hpp>
 
-MonitorWindow::MonitorWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MonitorWindow)
-{
+MonitorWindow::MonitorWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MonitorWindow) {
     ui->setupUi(this);
     timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, &MonitorWindow::update);
+    connect(timer, &QTimer::timeout, this, &MonitorWindow::update_ui);
     timer->start(50);
     camera_enabled = true;
-    worker::window = this;
+    monitor::window = this;
+    modified = false;
+    camera_enabled = true;
 }
 
-MonitorWindow::~MonitorWindow()
-{
-    worker::disconnect();
+MonitorWindow::~MonitorWindow() {
+    monitor::disconnect();
     delete ui;
 }
 
-void MonitorWindow::update()
-{
+void MonitorWindow::update_ui() {
     // only update ui if something has actually changed
     if (modified.load(std::memory_order_consume)) {
         std::lock_guard<std::mutex> lock(this->mtx);
@@ -47,22 +43,19 @@ void MonitorWindow::update()
     }
 }
 
-void MonitorWindow::setFPS(int fps)
-{
+void MonitorWindow::setFPS(int fps) {
     std::lock_guard<std::mutex> lock(this->mtx);
     this->fps = fps;
     this->modified = true;
 }
 
-void MonitorWindow::setDataRate(unsigned int data_rate)
-{
+void MonitorWindow::setDataRate(unsigned int data_rate) {
     std::lock_guard<std::mutex> lock(this->mtx);
     this->data_rate = data_rate;
     this->modified = true;
 }
 
-void MonitorWindow::setFrame(const cv::Mat &frame)
-{
+void MonitorWindow::setFrame(const cv::Mat &frame) {
     std::lock_guard<std::mutex> lock(this->mtx);
     if (!frame.empty() && frame.isContinuous()) {
         pixmap = QPixmap::fromImage(QImage(frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888));
@@ -70,28 +63,24 @@ void MonitorWindow::setFrame(const cv::Mat &frame)
     this->modified = true;
 }
 
-void MonitorWindow::setMessage(const std::string &msg)
-{
+void MonitorWindow::setMessage(const std::string &msg) {
     std::lock_guard<std::mutex> lock(this->mtx);
     this->msg = msg;
     this->modified = true;
 }
 
-void MonitorWindow::setFrameSize(int width, int height)
-{
+void MonitorWindow::setFrameSize(int width, int height) {
     std::lock_guard<std::mutex> lock(this->mtx);
     this->width = width;
     this->height = height;
     this->modified = true;
 }
 
-bool MonitorWindow::cameraEnabled() const
-{
+bool MonitorWindow::cameraEnabled() const {
     return camera_enabled;
 }
 
-void MonitorWindow::clear_ui()
-{
+void MonitorWindow::clear_ui() {
     ui->status->setText("disconnected");
     ui->address->setEnabled(true);
     ui->port->setEnabled(true);
@@ -104,8 +93,7 @@ void MonitorWindow::clear_ui()
     ui->image->setPixmap(pixmap);
 }
 
-void MonitorWindow::on_connection_clicked()
-{
+void MonitorWindow::on_connection_clicked() {
     if (ui->connection->text() == "connect") {
         ui->connection->setEnabled(false);
         ui->address->setEnabled(false);
@@ -115,7 +103,7 @@ void MonitorWindow::on_connection_clicked()
         const std::string address = ui->address->text().toStdString();
         const int port = ui->port->text().toInt();
 
-        if (!worker::connect(address, port)) {
+        if (!monitor::connect(address, port)) {
             // failed connect
             ui->address->setEnabled(true);
             ui->port->setEnabled(true);
@@ -124,18 +112,17 @@ void MonitorWindow::on_connection_clicked()
             // successful connect
             ui->status->setText("connected");
             ui->connection->setText("disconnect");
-            worker::run();
+            monitor::run();
         }
         ui->connection->setEnabled(true);
     } else {
         clear_ui();
-        worker::disconnect();
+        monitor::disconnect();
     }
 }
 
-void MonitorWindow::on_camera_clicked()
-{
-    worker::send_control('c');
+void MonitorWindow::on_camera_clicked() {
+    monitor::send_control('c');
     if (ui->camera->text() == "disable") {
         ui->camera->setText("enable");
         camera_enabled = false;
@@ -145,8 +132,7 @@ void MonitorWindow::on_camera_clicked()
     }
 }
 
-void MonitorWindow::on_recording_clicked()
-{
+void MonitorWindow::on_recording_clicked() {
     if (ui->recording->text() == "start") {
         ui->recording->setText("stop");
     } else {
@@ -154,9 +140,8 @@ void MonitorWindow::on_recording_clicked()
     }
 }
 
-void MonitorWindow::on_MonitorWindow_destroyed()
-{
-    worker::send_control('x');
-    worker::disconnect();
+void MonitorWindow::on_MonitorWindow_destroyed() {
+    monitor::send_control('x');
+    monitor::disconnect();
     clear_ui();
 }

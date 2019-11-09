@@ -1,4 +1,4 @@
-#include <worker.h>
+#include <monitor.hpp>
 #include <opencv2/opencv.hpp>
 #include <boost/asio.hpp>
 #include <mutex>
@@ -14,27 +14,24 @@ using boost::asio::ip::tcp;
 
 static cv::Mat frame;
 static std::thread t;
-MonitorWindow *worker::window;
+MonitorWindow *monitor::window;
 static std::atomic_char control;
 static std::atomic_bool terminate;
 static boost::asio::io_service io_service;
 static tcp::socket sck(io_service);
 
-// worker thread function
+// monitor thread function
 static void func() {
     boost::system::error_code err;
     uint32_t n = 0;
     cv::Mat tmp, scaled;
     std::vector<unsigned char> buffer(640 * 480 * 3);
-    MonitorWindow *window = worker::window;
+    MonitorWindow *window = monitor::window;
     control = 0x00;
-    double fps = 0;
-    double data_rate = 0;
     int i = 0;
 
     while (!terminate) {
         const std::chrono::system_clock::time_point begin = std::chrono::system_clock::now();
-        std::chrono::system_clock::time_point end;
         // if user has entered a control command
         // send it to host
         const char c = control.exchange(0x00);
@@ -68,11 +65,11 @@ static void func() {
             window->setFrame(frame);
         }
 
-        end = std::chrono::system_clock::now();
+        const std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
         const uint64_t elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
 
         if (i == 5) {
-            window->setFPS(1000 / elapsed_time);
+            window->setFPS(static_cast<int>(UINT64_C(1000) / elapsed_time));
             window->setDataRate(static_cast<unsigned int>(double(n) / double(elapsed_time) * 1000.0));
             i = 0;
         } else {
@@ -81,8 +78,7 @@ static void func() {
     }
 }
 
-bool worker::connect(const std::string &address, int port)
-{
+bool monitor::connect(const std::string &address, int port) {
     try {
         sck.connect(tcp::endpoint(boost::asio::ip::address::from_string(address), port));
     } catch (std::exception &e) {
@@ -92,20 +88,17 @@ bool worker::connect(const std::string &address, int port)
     return true;
 }
 
-void worker::run()
-{
+void monitor::run() {
     terminate = false;
     control = 0x00;
     t = std::thread(func);
 }
 
-void worker::send_control(char ctl)
-{
+void monitor::send_control(char ctl) {
     control = ctl;
 }
 
-void worker::disconnect()
-{
+void monitor::disconnect() {
     send_control('x');
     sck.close();
     terminate = true;

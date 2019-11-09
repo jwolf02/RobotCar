@@ -17,7 +17,7 @@ class MonitorWindow : public QMainWindow {
 public:
     explicit MonitorWindow(QWidget *parent = nullptr);
 
-    ~MonitorWindow();
+    ~MonitorWindow() override;
 
     void setFPS(int fps);
 
@@ -32,7 +32,7 @@ public:
     bool cameraEnabled() const;
 
 protected slots:
-    void update();
+    void update_ui();
 
 private slots:
     void on_connection_clicked();

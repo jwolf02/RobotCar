@@ -1,4 +1,4 @@
-#include <monitorwindow.h>
+#include <MonitorWindow.hpp>
 #include <QApplication>
 
 int main(int argc, char *argv[])
