@@ -4,7 +4,6 @@
 #include <functional>
 #include <vector>
 #include <string>
-#include <csignal>
 #include <opencv2/opencv.hpp>
 #include <boost/asio.hpp>
 #include <L298NHBridge.hpp>
@@ -35,21 +34,12 @@ using boost::asio::ip::tcp;
 // driving speed
 #define D_SPEED     0.8
 
-static void signal_handler(int signum) {
-    exit(1);
-}
-
 int main(int argc, const char *argv[]) {
 
     const std::vector<std::string> args(argv, argv + argc);
     const int port = args.size() >= 2 ? util::strto<int>(args[1]) : PORT;
 
     L298NHBridge bridge(20, 6, 13, 19, 26, 21);
-
-    if (signal(SIGINT, signal_handler) == SIG_ERR) {
-        std::cout << "cannot setup signal handler" << std::endl;
-        exit(1);
-    }
 
     // setup boost socket
     boost::asio::io_service io_service;

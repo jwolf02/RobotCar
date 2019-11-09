@@ -3,12 +3,13 @@
 
 #include <QMainWindow>
 #include <QTimer>
+#include <QEvent>
 #include <mutex>
 #include <atomic>
 #include <opencv2/opencv.hpp>
 
 namespace Ui {
-class MonitorWindow;
+    class MonitorWindow;
 }
 
 class MonitorWindow : public QMainWindow {
@@ -31,7 +32,10 @@ public:
 
     bool cameraEnabled() const;
 
-protected slots:
+protected:
+    bool eventFilter(QObject *o, QEvent *e) override;
+
+private slots:
     void update_ui();
 
 private slots:

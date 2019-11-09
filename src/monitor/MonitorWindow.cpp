@@ -1,6 +1,7 @@
 #include <MonitorWindow.hpp>
 #include <ui_MonitorWindow.h>
 #include <monitor.hpp>
+#include <QKeyEvent>
 
 MonitorWindow::MonitorWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MonitorWindow) {
     ui->setupUi(this);
@@ -11,6 +12,7 @@ MonitorWindow::MonitorWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::
     monitor::window = this;
     modified = false;
     camera_enabled = true;
+    this->installEventFilter(this);
 }
 
 MonitorWindow::~MonitorWindow() {
@@ -41,6 +43,15 @@ void MonitorWindow::update_ui() {
         this->repaint();
         this->modified = false;
     }
+}
+
+bool MonitorWindow::eventFilter(QObject *o, QEvent *e) {
+    if (e->type() == QEvent::KeyPress) {
+        const auto *k = dynamic_cast<QKeyEvent*>(e);
+        std::cout << "pressed key: " << static_cast<char>(k->key()) << std::endl;
+        return true;
+    }
+    return false;
 }
 
 void MonitorWindow::setFPS(int fps) {

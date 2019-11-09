@@ -1,5 +1,4 @@
 #include <gpio.hpp>
-#include <stdexcept>
 
 #ifdef RASPBERRY_PI
 #include <wiringPi.h>
