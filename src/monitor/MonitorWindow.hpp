@@ -60,9 +60,9 @@ private:
 
     QPixmap pixmap;
 
-    int fps = 0.0;
+    int fps = 0;
 
-    unsigned int data_rate = 0.0; // in B/s
+    unsigned int data_rate = 0; // in B/s
 
     int width = 0;
 

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5.1)
 project(RobotCar)
 
 set(CMAKE_CXX_STANDARD	11)
-set(CMAKE_CXX_FLAGS		"${CMAKE_CXX_FLAGS} -Wall -pedantic -O2 -march=native -mtune=native")
+set(CMAKE_CXX_FLAGS		"${CMAKE_CXX_FLAGS} -Wall -pedantic -O3 -march=native -mtune=native")
 
 find_package(OpenCV REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system)
@@ -41,7 +41,7 @@ set(DRIVER_SOURCES		${DRIVER_INCLUDE}
 						src/driver/HC_SR04.cpp
 						src/driver/gpio.cpp)
 
-set(DRIVER_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/driver)
+set(DRIVER_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/driver ${CMAKE_CURRENT_SOURCE_DIR}/src/socket)
 
 add_library(driver STATIC ${DRIVER_SOURCES})
 target_include_directories(driver PUBLIC ${DRIVER_INCLUDE_DIR} ${UTIL_INCLUDE_DIR})
@@ -53,8 +53,8 @@ set(MONITOR_SOURCES		src/monitor/main.cpp
 						src/monitor/MonitorWindow.hpp
 						src/monitor/MonitorWindow.cpp
 						src/monitor/MonitorWindow.ui
-		src/monitor/monitor.cpp
-		src/monitor/monitor.hpp)
+						src/monitor/monitor.cpp
+						src/monitor/monitor.hpp)
 
 # monitor executable
 add_executable(rcmonitor-ui ${MONITOR_SOURCES})
