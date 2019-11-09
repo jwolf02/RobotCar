@@ -88,6 +88,20 @@ namespace util {
     inline constexpr bool is_floating_point_type() {
         return std::is_same<T, long double>::value || std::is_same<T, double>::value || std::is_same<T, float>::value;
     }
+
+    template <typename T>
+    inline T bswap(T x) {
+        static_assert(std::is_integral<T>::value, "byte swap only works on integer types");
+        if (std::is_same<T, int8_t >::value || std::is_same<T, uint8_t>::value) {
+            return x;
+        } else if (std::is_same<T, int16_t>::value || std::is_same<T, uint16_t>::value) {
+            return htons(x);
+        } else if (std::is_same<T, int32_t>::value || std::is_same<T, uint32_t>::value) {
+            return htonl(x);
+        } else if (std::is_same<T, int64_t>::value || std::is_same<T, uint64_t>::value) {
+            return __bswap_64(x);
+        }
+    }
 }
 
 #endif // __UTIL_HPP
