@@ -47,8 +47,10 @@ void MonitorWindow::update_ui() {
 
 bool MonitorWindow::eventFilter(QObject *o, QEvent *e) {
     if (e->type() == QEvent::KeyPress) {
-        const auto *k = dynamic_cast<QKeyEvent*>(e);
-        std::cout << "pressed key: " << static_cast<char>(k->key()) << std::endl;
+        const auto k = std::tolower((char) (dynamic_cast<QKeyEvent*>(e)->key() & 0xff));
+        monitor::send_control(k);
+        if (k == 'x' && ui->status->text() == "connected")
+            disconnect();
         return true;
     }
     return false;
@@ -99,7 +101,6 @@ void MonitorWindow::clear_ui() {
     setFPS(0);
     setDataRate(0);
     setFrameSize(0, 0);
-    setFrame(cv::Mat());
     pixmap = QPixmap();
     ui->image->setPixmap(pixmap);
 }
@@ -123,12 +124,11 @@ void MonitorWindow::on_connection_clicked() {
             // successful connect
             ui->status->setText("connected");
             ui->connection->setText("disconnect");
-            monitor::run();
+            monitor::start_transceiver();
         }
         ui->connection->setEnabled(true);
     } else {
-        clear_ui();
-        monitor::disconnect();
+        disconnect();
     }
 }
 
@@ -152,7 +152,10 @@ void MonitorWindow::on_recording_clicked() {
 }
 
 void MonitorWindow::on_MonitorWindow_destroyed() {
-    monitor::send_control('x');
+    disconnect();
+}
+
+void MonitorWindow::disconnect() {
     monitor::disconnect();
     clear_ui();
 }

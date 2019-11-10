@@ -11,16 +11,17 @@
 
 using boost::asio::ip::tcp;
 
-#define SEND(sck, ptr, n, err)  boost::asio::write(sck, boost::asio::buffer(ptr, n), err); \
-                                if (err) { \
-                                    std::cout << err.message() << std::endl; \
+#define SEND(sck, ptr, n, err)  if (sck.is_open()) { \
+                                    boost::asio::write(sck, boost::asio::const_buffer(ptr, n), err); \
+                                    if (err) \
+                                        std::cout << err.message() << std::endl; \
                                 }
 
-#define RECV(sck, ptr, n, err)  boost::asio::read(sck, boost::asio::buffer(ptr, n), err); \
-                                if (err) { \
-                                    std::cout << err.message() << std::endl; \
+#define RECV(sck, ptr, n, err)  if (sck.is_open()) { \
+                                    boost::asio::read(sck, boost::asio::buffer(ptr, n), err); \
+                                    if (err) \
+                                        std::cout << err.message() << std::endl; \
                                 }
-
 #define PORT        8225
 
 #define FPS         10
@@ -100,6 +101,7 @@ int main(int argc, const char *argv[]) {
                 std::cout << "unable to read data from socket" << std::endl;
                 break;
             } else {
+                std::cout << c << std::endl;
                 if (c == 'x') {
                     std::cout << "connection terminated by peer" << std::endl;
                     terminated = true;

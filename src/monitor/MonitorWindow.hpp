@@ -50,6 +50,8 @@ private slots:
 private:
     void clear_ui();
 
+    void disconnect();
+
     Ui::MonitorWindow *ui = nullptr;
 
     QTimer *timer = nullptr;

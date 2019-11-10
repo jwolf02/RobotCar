@@ -10,7 +10,9 @@ namespace monitor {
 
     bool connect(const std::string &address, int port);
 
-    void run();
+    bool is_connected();
+
+    void start_transceiver();
 
     void send_control(char ctl);
 

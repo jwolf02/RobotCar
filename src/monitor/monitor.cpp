@@ -8,9 +8,9 @@
 
 using boost::asio::ip::tcp;
 
-#define SEND(sck, ptr, n, err)  boost::asio::write(sck, boost::asio::buffer(ptr, n), err)
+#define SEND(sck, ptr, n, err)  if (sck.is_open()) boost::asio::write(sck, boost::asio::const_buffer(ptr, n), err)
 
-#define RECV(sck, ptr, n, err)  boost::asio::read(sck, boost::asio::buffer(ptr, n), err)
+#define RECV(sck, ptr, n, err)  if (sck.is_open()) boost::asio::read(sck, boost::asio::buffer(ptr, n), err)
 
 static cv::Mat frame;
 static std::thread t;
@@ -19,14 +19,15 @@ static std::atomic_char control;
 static std::atomic_bool terminate;
 static boost::asio::io_service io_service;
 static tcp::socket sck(io_service);
+static bool connected = false;
 
 // monitor thread function
-static void func() {
+static void transceiver() {
+    using namespace monitor;
     boost::system::error_code err;
     uint32_t n = 0;
     cv::Mat tmp, scaled;
     std::vector<unsigned char> buffer(640 * 480 * 3);
-    MonitorWindow *window = monitor::window;
     control = 0x00;
     int i = 0;
 
@@ -68,7 +69,7 @@ static void func() {
         const std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
         const uint64_t elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
 
-        if (i == 5) {
+        if (i >= 5 && window->cameraEnabled()) {
             window->setFPS(static_cast<int>(UINT64_C(1000) / elapsed_time));
             window->setDataRate(static_cast<unsigned int>(double(n) / double(elapsed_time) * 1000.0));
             i = 0;
@@ -79,19 +80,24 @@ static void func() {
 }
 
 bool monitor::connect(const std::string &address, int port) {
-    try {
-        sck.connect(tcp::endpoint(boost::asio::ip::address::from_string(address), port));
-    } catch (std::exception &e) {
-        window->setMessage(e.what());
+    if (!connected) {
+        try {
+            sck.connect(tcp::endpoint(boost::asio::ip::address::from_string(address), port));
+        } catch (std::exception &e) {
+            window->setMessage(e.what());
+            return false;
+        }
+        connected = true;
+        return true;
+    } else {
         return false;
     }
-    return true;
 }
 
-void monitor::run() {
+void monitor::start_transceiver() {
     terminate = false;
     control = 0x00;
-    t = std::thread(func);
+    t = std::thread(transceiver);
 }
 
 void monitor::send_control(char ctl) {
@@ -99,8 +105,11 @@ void monitor::send_control(char ctl) {
 }
 
 void monitor::disconnect() {
-    send_control('x');
-    sck.close();
-    terminate = true;
-    t.join();
+    if (connected) {
+        if (sck.is_open())
+            sck.close();
+        terminate = true;
+        t.join();
+    }
+    connected = false;
 }
