@@ -101,6 +101,7 @@ namespace gpio {
                 pwmSetRange(range);
                 pwmWrite(pin, init);
             } else {
+                setup(pin, OUTPUT);
                 softPwmCreate(pin, init, range);
             }
             #endif
