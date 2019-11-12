@@ -71,7 +71,9 @@ static void transceiver() {
 
         if (i >= 5 && window->cameraEnabled()) {
             window->setFPS(static_cast<int>(UINT64_C(1000) / elapsed_time));
-            window->setDataRate(static_cast<unsigned int>(double(n) / double(elapsed_time) * 1000.0));
+            const int data_rate = static_cast<unsigned int>(double(n) / double(elapsed_time) * 1000.0);
+            window->setDataRate(data_rate);
+            window->setPing((n * UINT32_C(1000)) / data_rate);
             i = 0;
         } else {
             i++;

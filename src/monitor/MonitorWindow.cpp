@@ -40,6 +40,7 @@ void MonitorWindow::update_ui() {
         ui->height->setNum(this->height);
         ui->message->setText(QString::fromStdString(msg));
         ui->image->setPixmap(this->pixmap);
+        ui->ping->setText(QString::number(this->ping) + " ms");
         this->repaint();
         this->modified = false;
     }
@@ -89,6 +90,12 @@ void MonitorWindow::setFrameSize(int width, int height) {
     this->modified = true;
 }
 
+void MonitorWindow::setPing(int ping) {
+    std::lock_guard<std::mutex> lock(this->mtx);
+    this->ping = ping;
+    this->modified = true;
+}
+
 bool MonitorWindow::cameraEnabled() const {
     return camera_enabled;
 }
@@ -101,6 +108,7 @@ void MonitorWindow::clear_ui() {
     setFPS(0);
     setDataRate(0);
     setFrameSize(0, 0);
+    setPing(0);
     pixmap = QPixmap();
     ui->image->setPixmap(pixmap);
 }

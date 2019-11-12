@@ -107,7 +107,7 @@
     <property name="geometry">
      <rect>
       <x>660</x>
-      <y>200</y>
+      <y>210</y>
       <width>67</width>
       <height>17</height>
      </rect>
@@ -123,7 +123,7 @@
     <property name="geometry">
      <rect>
       <x>740</x>
-      <y>200</y>
+      <y>210</y>
       <width>101</width>
       <height>25</height>
      </rect>
@@ -136,7 +136,7 @@
     <property name="geometry">
      <rect>
       <x>750</x>
-      <y>390</y>
+      <y>380</y>
       <width>101</width>
       <height>25</height>
      </rect>
@@ -152,7 +152,7 @@
     <property name="geometry">
      <rect>
       <x>740</x>
-      <y>240</y>
+      <y>250</y>
       <width>101</width>
       <height>25</height>
      </rect>
@@ -165,7 +165,7 @@
     <property name="geometry">
      <rect>
       <x>660</x>
-      <y>240</y>
+      <y>250</y>
       <width>71</width>
       <height>17</height>
      </rect>
@@ -178,7 +178,7 @@
     <property name="geometry">
      <rect>
       <x>660</x>
-      <y>170</y>
+      <y>190</y>
       <width>221</width>
       <height>16</height>
      </rect>
@@ -256,7 +256,7 @@
     <property name="geometry">
      <rect>
       <x>740</x>
-      <y>310</y>
+      <y>300</y>
       <width>121</width>
       <height>25</height>
      </rect>
@@ -269,7 +269,7 @@
     <property name="geometry">
      <rect>
       <x>660</x>
-      <y>310</y>
+      <y>300</y>
       <width>61</width>
       <height>17</height>
      </rect>
@@ -282,7 +282,7 @@
     <property name="geometry">
      <rect>
       <x>740</x>
-      <y>350</y>
+      <y>340</y>
       <width>121</width>
       <height>25</height>
      </rect>
@@ -295,7 +295,7 @@
     <property name="geometry">
      <rect>
       <x>660</x>
-      <y>350</y>
+      <y>340</y>
       <width>67</width>
       <height>17</height>
      </rect>
@@ -355,6 +355,32 @@
      <string>NO DATA FEED AVAILABLE</string>
     </property>
    </widget>
+   <widget class="QLabel" name="label_10">
+    <property name="geometry">
+     <rect>
+      <x>660</x>
+      <y>160</y>
+      <width>67</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>ping</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="ping">
+    <property name="geometry">
+     <rect>
+      <x>740</x>
+      <y>160</y>
+      <width>67</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>0 ms</string>
+    </property>
+   </widget>
    <zorder>label_9</zorder>
    <zorder>status</zorder>
    <zorder>label_2</zorder>
@@ -378,6 +404,8 @@
    <zorder>label_7</zorder>
    <zorder>message</zorder>
    <zorder>image</zorder>
+   <zorder>label_10</zorder>
+   <zorder>ping</zorder>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>

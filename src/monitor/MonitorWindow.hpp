@@ -30,6 +30,8 @@ public:
 
     void setFrameSize(int width, int height);
 
+    void setPing(int ping);
+
     bool cameraEnabled() const;
 
 protected:
@@ -69,6 +71,8 @@ private:
     int width = 0;
 
     int height = 0;
+
+    int ping = 0;
 
     std::string msg;
 

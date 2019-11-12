@@ -94,6 +94,7 @@ int main(int argc, const char *argv[]) {
 
     // main control loop
 	do {
+	    const std::chrono::system_clock::time_point begin = std::chrono::system_clock::now();
 	    // read controls if available
 	    if (socket.available()) {
             RECV(socket, &c, 1, error);
@@ -104,7 +105,6 @@ int main(int argc, const char *argv[]) {
                 std::cout << c << std::endl;
                 if (c == 'x') {
                     std::cout << "connection terminated by peer" << std::endl;
-                    terminated = true;
                     break;
                 } else if (c == 'c') {
                     camera_enabled = !camera_enabled;
@@ -126,10 +126,11 @@ int main(int argc, const char *argv[]) {
 	        break;
 	    }
 
+	    uint32_t n = 0;
 	    if (camera_enabled) {
             cv::imencode(".jpeg", frame, buffer);
 
-            const uint32_t n = htonl((uint32_t) buffer.size());
+            n = htonl((uint32_t) buffer.size());
             SEND(socket, &n, sizeof(n), error);
             if (error) {
                 break;
@@ -139,8 +140,11 @@ int main(int argc, const char *argv[]) {
                 break;
             }
         }
-	} while (true);
-    std::cout << "connection closed" << std::endl;
+
+	    const uint64_t elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - begin).count();
+	    const uint64_t fps = UINT64_C(1000) / elapsed_time;
+    } while (!terminated);
+    std::cout << std::endl << "connection closed" << std::endl;
 
     if (socket.is_open()) {
         socket.close();
