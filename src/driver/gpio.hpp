@@ -1,15 +1,18 @@
 #ifndef __GPIO_HPP
 #define __GPIO_HPP
 
+#define RASPBERRY_PI
+#define INPUT       1
+
 #ifdef RASPBERRY_PI
 #include <wiringPi.h>
 #include <softPwm.h>
 #endif
 
 #ifndef INPUT
-#define INPUT_VAL   0
+constexpr int INPUT_VAL = 0;
 #else
-#define INPUT_VAL   INPUT
+constexpr int INPUT_VAL = INPUT;
 #undef INPUT
 #endif
 
