@@ -1,4 +1,5 @@
 #include <gpio.hpp>
+#include <stdexcept>
 
 bool gpio::hardware_support() {
     #if defined(WIRING_PI) || defined(SYS_GPIO)
