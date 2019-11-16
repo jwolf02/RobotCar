@@ -54,7 +54,6 @@ static void gpio_set_dir(int gpio, int out_flag) {
 
 static int gpio_open(int gpio) {
     const std::string str = SYSFS_GPIO_DIR "/gpio" + std::to_string(gpio) + "/value";
-
     int fd = open(str.c_str(), O_RDWR);
     if (fd < 0) {
         throw std::runtime_error("cannot set value for gpio pin");
@@ -64,8 +63,8 @@ static int gpio_open(int gpio) {
 
 static void cleanup() {
     for (const auto &it : _pins) {
-        int pin = it.first;
-        int fd = it.second;
+        const int pin = it.first;
+        const int fd = it.second;
         close(fd);
         gpio_unexport(pin);
     }

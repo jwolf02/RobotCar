@@ -34,18 +34,18 @@ constexpr int __CLOCK_VAL = 3;
 constexpr int __CLOCK_VAL = GPIO_CLOCK;
 #endif
 
-#ifndef HIGH
-constexpr int __HIGH_VAL = 1;
-#else
-constexpr int __HIGH_VAL = HIGH;
-#undef HIGH
-#endif
-
 #ifndef LOW
 constexpr int __LOW_VAL = 0;
 #else
 constexpr int __LOW_VAL = LOW;
 #undef LOW
+#endif
+
+#ifndef HIGH
+constexpr int __HIGH_VAL = 1;
+#else
+constexpr int __HIGH_VAL = HIGH;
+#undef HIGH
 #endif
 
 namespace gpio {
@@ -60,6 +60,7 @@ namespace gpio {
     constexpr int HIGH = __HIGH_VAL;
     constexpr int LOW = __LOW_VAL;
 
+    // check if build uses some GPIO library
     bool hardware_support();
 
     // setup GPIO library
@@ -81,7 +82,7 @@ namespace gpio {
         #if defined(WIRING_PI) || defined(SYS_GPIO)
         return digitalRead(pin);
         #else
-        return LOW;
+        return -1;
         #endif
     }
 
