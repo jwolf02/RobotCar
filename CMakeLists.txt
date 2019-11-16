@@ -9,17 +9,16 @@ find_package(Boost REQUIRED COMPONENTS system)
 
 if(RASPBERRY_PI)
 	# building rchost for a Raspberry Pi based system using wiringPi
-	message("-- building for Raspberry Pi")
+	message("-- Building for Raspberry Pi")
     add_definitions(-DRASPBERRY_PI)
 elseif(JETSON_NANO)
 	# building rchost for NVIDIA Jetson Nano
-	message("-- building for Jetson Nano")
+	message("-- Building for Jetson Nano")
 	add_definitions(-DJETSON_NANO)
 else()
 	# building rcmonitor-ui and rchost using Qt5
-	message("-- building for default platform")
-	find_package(Qt5Widgets REQUIRED)
-	find_package(Qt5Core REQUIRED)
+	message("-- Building for default platform")
+	find_package(Qt5 REQUIRED COMPONENTS Core Widgets)
 
 	# many Qt specific commands
 	set(CMAKE_AUTOMOC ON)
