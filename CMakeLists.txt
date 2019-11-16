@@ -34,7 +34,8 @@ set(UTIL_INCLUDE_DIR	${CMAKE_CURRENT_SOURCE_DIR}/src/util)
 
 set(DRIVER_INCLUDE 		src/driver/L298NHBridge.hpp
 						src/driver/HC_SR04.hpp
-						src/driver/gpio.hpp)
+						src/driver/gpio.hpp
+						src/util/Socket.hpp)
 
 set(DRIVER_SOURCES		${DRIVER_INCLUDE}
 						src/driver/L298NHBridge.cpp

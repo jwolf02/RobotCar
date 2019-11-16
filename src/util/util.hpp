@@ -93,13 +93,13 @@ namespace util {
     inline T bswap(T x) {
         static_assert(std::is_integral<T>::value, "byte swap only works on integer types");
         if (std::is_same<T, int8_t >::value || std::is_same<T, uint8_t>::value) {
-            return x;
+            return (T) x;
         } else if (std::is_same<T, int16_t>::value || std::is_same<T, uint16_t>::value) {
-            return htons(x);
+            return (T) __bswap_16((uint16_t) x);
         } else if (std::is_same<T, int32_t>::value || std::is_same<T, uint32_t>::value) {
-            return htonl(x);
+            return (T) __bswap_32((uint32_t) x);
         } else if (std::is_same<T, int64_t>::value || std::is_same<T, uint64_t>::value) {
-            return __bswap_64(x);
+            return (T) __bswap_64((uint64_t) x);
         }
     }
 }
