@@ -13,9 +13,6 @@ public:
      */
     HC_SR04(int trigger, int echo);
 
-    // destructor
-    ~HC_SR04();
-
     /*
      * get the distance in seconds
      */

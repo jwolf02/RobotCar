@@ -1,7 +1,7 @@
 #include <HC_SR04.hpp>
 #include <unistd.h>
 #include <ctime>
-#include <gpio/gpio.hpp>
+#include <gpio.hpp>
 
 HC_SR04::HC_SR04(int trigger, int echo) {
     gpio::init();
@@ -11,10 +11,6 @@ HC_SR04::HC_SR04(int trigger, int echo) {
     gpio::setup(echo, gpio::OUTPUT);
     gpio::setup(echo, gpio::INPUT);
     sleep(2);
-}
-
-HC_SR04::~HC_SR04() {
-    gpio::write(_trigger, gpio::LOW);
 }
 
 double HC_SR04::distance() {

@@ -1,7 +1,7 @@
 #include <L298NHBridge.hpp>
 #include <stdexcept>
 #include <cmath>
-#include <gpio/gpio.hpp>
+#include <gpio.hpp>
 
 L298NHBridge::L298NHBridge(int ENA, int IN1, int IN2, int IN3, int IN4, int ENB, double min_speed) :
         ENA(ENA), IN1(IN1), IN2(IN2), IN3(IN3), IN4(IN4), ENB(ENB) {
