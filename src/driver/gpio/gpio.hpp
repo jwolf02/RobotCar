@@ -1,9 +1,11 @@
 #ifndef __GPIO_HPP
 #define __GPIO_HPP
 
-#ifdef RASPBERRY_PI
+#if defined(WIRING_PI)
 #include <wiringPi.h>
 #include <softPwm.h>
+#elif defined(SYS_GPIO)
+#include <sys_gpio.hpp>
 #endif
 
 #ifndef INPUT
@@ -58,32 +60,28 @@ namespace gpio {
     constexpr int HIGH = __HIGH_VAL;
     constexpr int LOW = __LOW_VAL;
 
+    bool hardware_support();
+
     // setup GPIO library
-    inline void init() {
-        #ifdef RASPBERRY_PI
-        if (wiringPiSetupGpio() < 0) {
-            throw std::runtime_error("cannot setup wiringPi");
-        }
-        #endif
-    }
+    void init();
 
     inline void setup(int pin, int mode) {
-        #ifdef RASPBERRY_PI
+        #if defined(WIRING_PI) || defined(SYS_GPIO)
         pinMode(pin, mode);
         #endif
     }
 
     inline void write(int pin, int value) {
-        #ifdef RASPBERRY_PI
+        #if defined(WIRING_PI) || defined(SYS_GPIO)
         digitalWrite(pin, value);
         #endif
     }
 
     inline int read(int pin) {
-        #ifdef RASPBERRY_PI
+        #if defined(WIRING_PI) || defined(SYS_GPIO)
         return digitalRead(pin);
         #else
-        return 0;
+        return LOW;
         #endif
     }
 
@@ -93,7 +91,7 @@ namespace gpio {
     namespace pwm {
 
         inline void create(int pin, int init, int range, int clock_rate=5000) {
-            #ifdef RASPBERRY_PI
+            #ifdef WIRING_PI
             if (pin == 18) {
                 setup(pin, PWM);
                 pwmSetMode(PWM_MODE_MS);
@@ -108,7 +106,7 @@ namespace gpio {
         }
 
         inline void write(int pin, int value) {
-            #ifdef RASPBERRY_PI
+            #ifdef WIRING_PI
             if (pin == 18) {
                 pwmWrite(pin, value);
             } else {

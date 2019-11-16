@@ -10,14 +10,17 @@ find_package(Boost REQUIRED COMPONENTS system)
 if(RASPBERRY_PI)
 	# building rchost for a Raspberry Pi based system using wiringPi
 	message("-- Building for Raspberry Pi")
-    add_definitions(-DRASPBERRY_PI)
+	message("-- Using WiringPi as GPIO library")
+    add_definitions(-DWIRING_PI)
 elseif(JETSON_NANO)
 	# building rchost for NVIDIA Jetson Nano
 	message("-- Building for Jetson Nano")
-	add_definitions(-DJETSON_NANO)
+	message("-- Using custom sys_gpio as GPIO library")
+	add_definitions(-DSYS_GPIO)
 else()
 	# building rcmonitor-ui and rchost using Qt5
 	message("-- Building for default platform")
+	message("-- No GPIO library support")
 	find_package(Qt5 REQUIRED COMPONENTS Core Widgets)
 
 	# many Qt specific commands
@@ -33,19 +36,21 @@ set(UTIL_INCLUDE_DIR	${CMAKE_CURRENT_SOURCE_DIR}/src/util)
 
 set(DRIVER_INCLUDE 		src/driver/L298NHBridge.hpp
 						src/driver/HC_SR04.hpp
-						src/driver/gpio.hpp
-						src/util/Socket.hpp)
+						src/driver/gpio/gpio.hpp
+						src/driver/gpio/sys_gpio.hpp)
 
 set(DRIVER_SOURCES		${DRIVER_INCLUDE}
 						src/driver/L298NHBridge.cpp
-						src/driver/HC_SR04.cpp)
+						src/driver/HC_SR04.cpp
+						src/driver/gpio/sys_gpio.cpp
+						src/driver/gpio/gpio.cpp)
 
 set(DRIVER_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/driver ${CMAKE_CURRENT_SOURCE_DIR}/src/socket)
 
 add_library(driver STATIC ${DRIVER_SOURCES})
 target_include_directories(driver PUBLIC ${DRIVER_INCLUDE_DIR} ${UTIL_INCLUDE_DIR})
 if (RASPBERRY_PI)
-	target_link_libraries(driver PUBLIC wiringPi)
+	target_link_libraries(driver PUBLIC wiringPi pthread)
 endif()
 
 set(MONITOR_SOURCES		src/monitor/main.cpp
