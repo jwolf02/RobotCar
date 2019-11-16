@@ -13,6 +13,6 @@ int pinMode(int gpio, int mode);
 
 int digitalWrite(int pin, int value);
 
-int digitalRead(int pin, int value);
+int digitalRead(int pin);
 
 #endif // _SYS_GPIO_HPP
