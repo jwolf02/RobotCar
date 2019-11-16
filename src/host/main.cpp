@@ -12,7 +12,7 @@
 using boost::asio::ip::tcp;
 
 #define SEND(sck, ptr, n, err)  if (sck.is_open()) { \
-                                    boost::asio::write(sck, boost::asio::const_buffer(ptr, n), err); \
+                                    boost::asio::write(sck, boost::asio::buffer(ptr, n), err); \
                                     if (err) \
                                         std::cout << err.message() << std::endl; \
                                 }
