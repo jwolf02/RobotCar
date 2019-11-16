@@ -1,65 +1,62 @@
 #ifndef __GPIO_HPP
 #define __GPIO_HPP
 
-#define RASPBERRY_PI
-#define INPUT       1
-
 #ifdef RASPBERRY_PI
 #include <wiringPi.h>
 #include <softPwm.h>
 #endif
 
 #ifndef INPUT
-constexpr int INPUT_VAL = 0;
+constexpr int __INPUT_VAL = 0;
 #else
-constexpr int INPUT_VAL = INPUT;
+constexpr int __INPUT_VAL = INPUT;
 #undef INPUT
 #endif
 
 #ifndef OUTPUT
-#define OUTPUT_VAL  1
+constexpr int __OUTPUT_VAL = 1;
 #else
-#define OUTPUT_VAL  OUTPUT
+constexpr int __OUTPUT_VAL = OUTPUT;
 #undef OUTPUT
 #endif
 
 #ifndef PWM_OUTPUT
-#define PWM_VAL     2
+constexpr int __PWM_VAL = 2;
 #else
-#define PWM_VAL     PWM_OUTPUT
+constexpr int __PWM_VAL = PWM_OUTPUT;
 #endif
 
 #ifndef CLOCK
-#define CLOCK_VAL   3
+constexpr int __CLOCK_VAL = 3;
 #else
-#define CLOCK_VAL   GPIO_CLOCK
+constexpr int __CLOCK_VAL = GPIO_CLOCK;
 #endif
 
 #ifndef HIGH
-#define HIGH_VAL    1
+constexpr int __HIGH_VAL = 1;
 #else
-#define HIGH_VAL    HIGH
+constexpr int __HIGH_VAL = HIGH;
 #undef HIGH
 #endif
 
 #ifndef LOW
-#define LOW_VAL     0
+constexpr int __LOW_VAL = 0;
 #else
-#define LOW_VAL     LOW
+constexpr int __LOW_VAL = LOW;
 #undef LOW
 #endif
 
 namespace gpio {
 
     // pin mode constants
-    constexpr int INPUT = INPUT_VAL;
-    constexpr int OUTPUT = OUTPUT_VAL;
-    constexpr int PWM = PWM_VAL;
-    constexpr int CLOCK = CLOCK_VAL;
+    constexpr int INPUT = __INPUT_VAL;
+    constexpr int OUTPUT = __OUTPUT_VAL;
+    constexpr int PWM = __PWM_VAL;
+    constexpr int CLOCK = __CLOCK_VAL;
 
     // pin value constants
-    constexpr int HIGH = HIGH_VAL;
-    constexpr int LOW = LOW_VAL;
+    constexpr int HIGH = __HIGH_VAL;
+    constexpr int LOW = __LOW_VAL;
 
     // setup GPIO library
     inline void init() {
