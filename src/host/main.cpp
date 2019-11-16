@@ -70,7 +70,6 @@ int main(int argc, const char *argv[]) {
     // set camera properties
     camera.set(cv::CAP_PROP_FRAME_WIDTH, WIDTH);
     camera.set(cv::CAP_PROP_FRAME_HEIGHT, HEIGHT);
-    camera.set(cv::CAP_PROP_FPS, FPS);
 
     std::cout << "frame_size=(" << camera.get(cv::CAP_PROP_FRAME_WIDTH) << ", "
                 << camera.get(cv::CAP_PROP_FRAME_HEIGHT)
@@ -102,7 +101,6 @@ int main(int argc, const char *argv[]) {
                 std::cout << "unable to read data from socket" << std::endl;
                 break;
             } else {
-                std::cout << c << std::endl;
                 if (c == 'x') {
                     std::cout << "connection terminated by peer" << std::endl;
                     break;
