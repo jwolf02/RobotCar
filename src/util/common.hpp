@@ -194,8 +194,7 @@ namespace seq {
         std::uniform_int_distribution<uint64_t> dist(0, end - begin);
 
         for (auto it = begin; it != end; ++it) {
-            auto idx = dist(engine);
-            std::swap(*it, begin + idx);
+            std::swap(*it, *(begin + dist(engine)));
         }
     }
 }

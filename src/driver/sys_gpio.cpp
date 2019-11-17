@@ -4,30 +4,8 @@
 #include <stdexcept>
 #include <unordered_map>
 #include <fstream>
-#include <filesystem>
 
 #define SYSFS_GPIO_DIR "/sys/class/gpio"
-
-typedef struct {
-    // BCM pin number
-    int pin;
-
-    // file descriptor for value file
-    int fd;
-
-    // in/out
-    int direction;
-
-    // INPUT, OUTPUT, PWM
-    int mode;
-
-    int value;
-
-    int duty_cycle;
-
-    int frequency;
-
-} channel_info_t;
 
 static std::unordered_map<int, int> _pins;
 
