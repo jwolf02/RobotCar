@@ -7,7 +7,8 @@
 #include <opencv2/opencv.hpp>
 #include <boost/asio.hpp>
 #include <L298NHBridge.hpp>
-#include <util.hpp>
+#include <common.hpp>
+#include <config.hpp>
 
 using boost::asio::ip::tcp;
 
@@ -22,25 +23,62 @@ using boost::asio::ip::tcp;
                                     if (err) \
                                         std::cout << err.message() << std::endl; \
                                 }
-#define PORT        8225
-
-#define FPS         10
-
-// frame size
-#define WIDTH       320
-#define HEIGHT      240
-
-// rotation speed
-#define R_SPEED     0.6
-// driving speed
-#define D_SPEED     0.8
 
 int main(int argc, const char *argv[]) {
-
     const std::vector<std::string> args(argv, argv + argc);
-    const int port = args.size() >= 2 ? util::strto<int>(args[1]) : PORT;
+    std::cout << args << std::endl;
+    if (args.size() > 1 && string::starts_with(args[1], "--config=")) {
+        auto tokens = string::split(args[1], "=");
+        if (tokens.size() >= 2) {
+            try {
+                config::load(tokens[1]);
+            } catch (std::exception &ex) {
+                std::cout << ex.what() << std::endl;
+                exit(1);
+            }
+        }
+    }
 
-    L298NHBridge bridge(20, 6, 13, 19, 26, 21);
+    // override config with command line arguments
+    for (int i = 1; i < args.size(); ++i) {
+        auto tokens = string::split(args[i], "=");
+        if (tokens.size() >= 2) {
+            const auto key = string::to_upper(string::trim(tokens[0], "- \t"));
+            const auto value = string::trim(tokens[1]);
+            config::set(key, value);
+        }
+    }
+
+    // load variables from config
+    const int port = config::get_as<int>("PORT");
+    const int width = config::get_as<int>("WIDTH");
+    const int height = config::get_as<int>("HEIGHT");
+    const int r_speed = config::get_as<int>("ROTATION_SPEED");
+    const int d_speed = config::get_as<int>("DRIVE_SPEED");
+
+    const int ENA = config::get_as<int>("ENA");
+    const int IN1 = config::get_as<int>("IN1");
+    const int IN2 = config::get_as<int>("IN2");
+    const int IN3 = config::get_as<int>("IN3");
+    const int IN4 = config::get_as<int>("IN4");
+    const int ENB = config::get_as<int>("ENB");
+
+    L298NHBridge bridge(ENA, IN1, IN2, IN3, IN4, ENB);
+
+    // open camera
+    cv::VideoCapture camera(0);
+    if (!camera.isOpened()) {
+        std::cout << "unable to access camera" << std::endl;
+        exit(1);
+    }
+
+    // set camera properties
+    camera.set(cv::CAP_PROP_FRAME_WIDTH, width);
+    camera.set(cv::CAP_PROP_FRAME_HEIGHT, height);
+
+    std::cout << "frame_size=(" << camera.get(cv::CAP_PROP_FRAME_WIDTH) << ", "
+                << camera.get(cv::CAP_PROP_FRAME_HEIGHT)
+                << "), FPS=" << camera.get(cv::CAP_PROP_FPS) << std::endl;
 
     // setup boost socket
     boost::asio::io_service io_service;
@@ -59,35 +97,19 @@ int main(int argc, const char *argv[]) {
     }
     std::cout << "connection established" << std::endl;
 
-    // open camera
-    cv::VideoCapture camera(0);
-    if (!camera.isOpened()) {
-        std::cout << "unable to access camera" << std::endl;
-        socket.close();
-        exit(1);
-    }
-
-    // set camera properties
-    camera.set(cv::CAP_PROP_FRAME_WIDTH, WIDTH);
-    camera.set(cv::CAP_PROP_FRAME_HEIGHT, HEIGHT);
-
-    std::cout << "frame_size=(" << camera.get(cv::CAP_PROP_FRAME_WIDTH) << ", "
-                << camera.get(cv::CAP_PROP_FRAME_HEIGHT)
-                << "), FPS=" << camera.get(cv::CAP_PROP_FPS) << std::endl;
-
     // map keyboard inputs to actions for host
 	const std::map<char, std::function<void (void)>> actions = {
             { 'q', [&]{ bridge.stop_motors(); }},
-            { 'w', [&]{ bridge.set_motors(-D_SPEED, D_SPEED); }},
-            { 's', [&]{ bridge.set_motors(D_SPEED, -D_SPEED); }},
-            { 'a', [&]{ bridge.set_motors(R_SPEED, R_SPEED); }},
-            { 'd', [&]{ bridge.set_motors(-R_SPEED, -R_SPEED); }}
+            { 'w', [&]{ bridge.set_motors(-d_speed, d_speed); }},
+            { 's', [&]{ bridge.set_motors(d_speed, -d_speed); }},
+            { 'a', [&]{ bridge.set_motors(r_speed, r_speed); }},
+            { 'd', [&]{ bridge.set_motors(-r_speed, -r_speed); }}
 	};
 
     bool terminated = false;
     char c = 0x00;
-    cv::Mat frame(WIDTH, HEIGHT, CV_8SC3);
-    std::vector<unsigned char> buffer(WIDTH * HEIGHT * 3);
+    cv::Mat frame(width, height, CV_8SC3);
+    std::vector<unsigned char> buffer(width * height * 3);
     boost::system::error_code error;
     bool camera_enabled = true;
 

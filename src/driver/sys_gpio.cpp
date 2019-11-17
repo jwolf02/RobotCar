@@ -4,19 +4,39 @@
 #include <stdexcept>
 #include <unordered_map>
 #include <fstream>
-
-/****************************************************************
-* Constants
-****************************************************************/
+#include <filesystem>
 
 #define SYSFS_GPIO_DIR "/sys/class/gpio"
 
+typedef struct {
+    // BCM pin number
+    int pin;
+
+    // file descriptor for value file
+    int fd;
+
+    // in/out
+    int direction;
+
+    // INPUT, OUTPUT, PWM
+    int mode;
+
+    int value;
+
+    int duty_cycle;
+
+    int frequency;
+
+} channel_info_t;
+
 static std::unordered_map<int, int> _pins;
 
-/****************************************************************
- * gpio_export
- ****************************************************************/
 static void gpio_export(int gpio) {
+    const std::string str = SYSFS_GPIO_DIR "/gpio" + std::to_string(gpio);
+    if (access(str.c_str(), F_OK) == 0) {
+        return;
+    }
+
     std::ofstream file(SYSFS_GPIO_DIR "/export");
     if (!file) {
         throw std::runtime_error("unable to export gpio pin");
@@ -26,10 +46,12 @@ static void gpio_export(int gpio) {
     file.close();
 }
 
-/****************************************************************
- * gpio_unexport
- ****************************************************************/
 static void gpio_unexport(int gpio) {
+    const std::string str = SYSFS_GPIO_DIR "/gpio" + std::to_string(gpio);
+    if (access(str.c_str(), F_OK) != 0) {
+        return;
+    }
+
     std::ofstream file(SYSFS_GPIO_DIR "/unexport");
     if (!file) {
         throw std::runtime_error("unable to unexport gpio pin");
@@ -39,9 +61,6 @@ static void gpio_unexport(int gpio) {
     file.close();
 }
 
-/****************************************************************
- * gpio_set_dir
- ****************************************************************/
 static void gpio_set_dir(int gpio, int out_flag) {
     std::ofstream file(SYSFS_GPIO_DIR "/gpio" + std::to_string(gpio) + "/direction");
     if (!file) {
@@ -112,4 +131,3 @@ int digitalRead(int pin) {
 
     return (int) ch;
 }
-

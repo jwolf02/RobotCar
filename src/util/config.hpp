@@ -2,7 +2,7 @@
 #define __CONFIG_HPP
 
 #include <string>
-#include <util.hpp>
+#include <common.hpp>
 
 namespace config {
 
@@ -18,7 +18,7 @@ namespace config {
 
     template <typename T>
     inline T get_as(const std::string &key) {
-        return util::strto<T>(get(key));
+        return string::to<T>(get(key));
     }
 
     template <>

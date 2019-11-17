@@ -1,211 +1,301 @@
-#ifndef __COMMON_HPP
-#define __COMMON_HPP
+#ifndef __UTIL_HPP
+#define __UTIL_HPP
 
 #include <vector>
-#include <cmath>
-#include <functional>
-#include <random>
-#include <cassert>
 #include <string>
 #include <type_traits>
 #include <stdexcept>
+#include <algorithm>
+#include <iostream>
+#include <functional>
+#include <unordered_map>
+#include <map>
+#include <set>
+#include <unordered_set>
+#include <fcntl.h>
+#include <unistd.h>
+#include <random>
 
-// switch for using optimized vector operations
-#define OPTIMIZATION
+namespace string {
 
-// Compute dot product between two vectors
-inline double dot(const std::vector<double> &X, const std::vector<double> &Y) {
-  assert(X.size() == Y.size());
-
-  double res = 0.0;
-  unsigned i;
-  #ifdef OPTIMIZATION
-  for (i = 0; i < X.size(); i += 4) {
-    double a, b, c, d;
-    a = X[i    ] * Y[i    ];
-    b = X[i + 1] * Y[i + 1];
-    c = X[i + 2] * Y[i + 2];
-    d = X[i + 3] * Y[i + 3];
-    res += (a + b) + (c + d);
-  }
-  #else
-  i = 0;
-  #endif
-  for (; i < X.size(); ++i)
-    res += X[i] * Y[i];
-
-  return res;
-}
-
-// sigmoid function
-template <typename value_t>
-inline value_t sigmoid(value_t x) {
-  return 1.0 / (1 + std::exp(-x));
-}
-
-// elementwise sigmoid function on vector
-inline std::vector<double> sigmoid(const std::vector<double> &X) {
-  std::vector<double> Y(X.size());
-  for (unsigned i = 0; i < X.size(); ++i)
-    Y[i] = sigmoid(X[i]);
-  return Y;
-}
-
-// compute soft max to create probability distribution
-inline std::vector<double> softmax(const std::vector<double> &X) {
-  std::vector<double> Y(X.size());
-
-  // compute exponential over all vector elements
-  double sum = 0.0;
-  for (unsigned i = 0; i < X.size(); ++i) {
-    sum += (Y[i] = std::exp(X[i]));
-  }
-
-  for (auto &v : Y) {
-    v /= sum;
-  }
-
-  return Y;
-}
-
-template <typename T, typename func_t>
-inline T reduce(const std::vector<T> &vector, func_t f) {
-  assert(!vector.empty());
-
-  T tmp = vector[0];
-  for (size_t i = 0; i < vector.size(); ++i)
-    tmp = f(tmp, vector[i]);
-  return tmp;
-}
-
-template <typename T>
-inline unsigned argmax(const std::vector<T> &X) {
-  assert(!X.empty());
-
-  T max = X[0];
-  unsigned idx = 0;
-  for (unsigned i = 1; i < X.size(); ++i) {
-    if (max < X[i]) {
-      max = X[i];
-      idx = i;
+    /***
+     * split string by the specified delimiter, if delim is the empty string
+     * then a vector of chars is returned
+     * @param str the string to split
+     * @param delim the delimiter, by default a single space
+     * @return a vector of strings
+     */
+    inline std::vector<std::string> split(const std::string &str, const std::string &delim = " ") {
+        std::vector<std::string> tokens;
+        size_t last = 0;
+        size_t next = 0;
+        while ((next = str.find(delim, last)) != std::string::npos) {
+            tokens.emplace_back(str.substr(last, next - last));
+            last = next + 1;
+        }
+        tokens.emplace_back(str.substr(last));
+        return tokens;
     }
-  }
-  return idx;
-}
 
-template <typename T>
-inline unsigned argmin(const std::vector<T> &X) {
-  assert(!X.empty());
-
-  T min = X[0];
-  unsigned idx = 0;
-  for (unsigned i = 1; i < X.size(); ++i) {
-    if (X[i] < min) {
-      min = X[i];
-      idx = i;
+    /***
+     * check if str1 starts with str2
+     * @param str1
+     * @param str2
+     * @return
+     */
+    inline bool starts_with(const std::string &str1, const std::string &str2) {
+        return str1.size() >= str2.size() ? std::equal(str1.begin(), str1.begin() + str2.size(), str2.begin()) : false;
     }
-  }
-  return idx;
+
+    /***
+     * check if str1 end with str2
+     * @param str1
+     * @param str2
+     * @return
+     */
+    inline bool ends_with(const std::string &str1, const std::string &str2) {
+        return str1.size() >= str2.size() ? std::equal(str1.end() - str2.size(), str1.end(), str2.begin()) : false;
+    }
+
+    /***
+     * cast string to arithmetic type specified by the template argument
+     * @tparam T type to case to
+     * @param str string to be casted
+     * @return arithmetic type
+     */
+    template<typename T>
+    inline T to(const std::string &str) {
+        static_assert(std::is_fundamental<T>::value && (std::is_arithmetic<T>::value || std::is_same<T, bool>::value),
+                      "cannot convert string to non-arithmetic type");
+
+        // signed types
+        if (std::is_same<T, char>::value || std::is_same<T, short>::value || std::is_same<T, int>::value ||
+            std::is_same<T, long>::value || std::is_same<T, long long>::value) {
+            return (T) strtoll(str.c_str(), nullptr, 10);
+        } // unsigned types
+        else if (std::is_same<T, unsigned char>::value || std::is_same<T, unsigned short>::value ||
+                 std::is_same<T, unsigned int>::value ||
+                 std::is_same<T, unsigned long>::value || std::is_same<T, unsigned long long>::value) {
+            return (T) strtoull(str.c_str(), nullptr, 10);
+        } // double
+        else if (std::is_same<T, double>::value) {
+            return strtod(str.c_str(), nullptr);
+        } // float
+        else if (std::is_same<T, float>::value) {
+            return strtof(str.c_str(), nullptr);
+        } // long double
+        else if (std::is_same<T, long double>::value) {
+            return strtold(str.c_str(), nullptr);
+        } // bool
+        else if (std::is_same<T, bool>::value) {
+            return str == "true" || str == "1" || str == "True" || str == "TRUE";
+        } else {
+            throw std::domain_error("cannot convert string to specified type");
+        }
+    }
+
+    /***
+     * remove leading and trailing whitespace characters (can be any characters) from string
+     * @param str
+     * @param whitespace
+     * @return
+     */
+    inline std::string trim(const std::string &str, const std::string &whitespace = " \t") {
+        const size_t begin = str.find_first_not_of(whitespace);
+        const size_t end = str.find_last_not_of(whitespace);
+        return str.substr(begin, end - begin + 1);
+    }
+
+    /***
+     * convert string to upper case
+     * @param str
+     * @return
+     */
+    inline std::string to_upper(const std::string &str) {
+        std::string up = str;
+        std::transform(str.begin(), str.end(), up.begin(), ::toupper);
+        return up;
+    }
+
+    /***
+     * convert string to lower case
+     * @param str
+     * @return
+     */
+    inline std::string to_lower(const std::string &str) {
+        std::string lo = str;
+        std::transform(str.begin(), str.end(), lo.begin(), ::tolower);
+        return lo;
+    }
+}
+
+namespace seq {
+
+    template<typename iterator>
+    inline decltype(iterator::operator*) min(iterator begin, iterator end) {
+        if (end - begin == 0) {
+            throw std::runtime_error("empty sequence");
+        }
+
+        iterator min = begin;
+        for (auto it = begin; it != end; ++it) {
+            min = *it < *min ? it : min;
+        }
+        return *min;
+    }
+
+    template<typename iterator>
+    inline decltype(iterator::operator*) max(iterator begin, iterator end) {
+        if (end - begin == 0) {
+            throw std::runtime_error("empty sequence");
+        }
+
+        iterator max = begin;
+        for (auto it = begin; it != end; ++it) {
+            max = *it > *max ? it : max;
+        }
+        return *max;
+    }
+
+    template<typename iterator>
+    inline uint64_t argmin(iterator begin, iterator end) {
+        if (end - begin == 0) {
+            throw std::runtime_error("empty sequence");
+        }
+
+        iterator min = begin;
+        for (auto it = begin; it != end; ++it) {
+            min = *it < *min ? it : min;
+        }
+        return min - begin;
+    }
+
+    template<typename iterator>
+    inline uint64_t argmax(iterator begin, iterator end) {
+        if (end - begin == 0) {
+            throw std::runtime_error("empty sequence");
+        }
+
+        iterator max = begin;
+        for (auto it = begin; it != end; ++it) {
+            max = *it > *max ? it : max;
+        }
+        return max - begin;
+    }
+
+    template <typename iterator>
+    inline void shuffle(iterator begin, iterator end) {
+        if (end - begin == 0) {
+            throw std::runtime_error("empty sequence");
+        }
+
+        std::random_device rd;
+        std::default_random_engine engine(rd());
+        std::uniform_int_distribution<uint64_t> dist(0, end - begin);
+
+        for (auto it = begin; it != end; ++it) {
+            auto idx = dist(engine);
+            std::swap(*it, begin + idx);
+        }
+    }
+}
+
+namespace io {
+    /***
+     * generalized STL-like print function
+     * @tparam iterator
+     * @param os
+     * @param begin
+     * @param end
+     * @param b
+     * @param e
+     * @param print_func
+     */
+    template <typename iterator>
+    inline void print(std::ostream &os, iterator begin, iterator end, char b, char e,
+            std::function<void (std::ostream &os, iterator it)> &print_func){
+        auto it = begin;
+        os << b;
+        while (it != end) {
+            print_func(os, it);
+            auto _it = it;
+            if (++_it != end) {
+                os << ", ";
+            }
+        }
+        os << e;
+    }
+
+    template <typename iterator>
+    inline void print(std::ostream &os, iterator begin, iterator end, char b='(', char e=')'){
+        auto it = begin;
+        os << b;
+        while (it != end) {
+            os << *it;
+            auto _it = it;
+            if (++_it != end) {
+                os << ", ";
+            }
+            ++it;
+        }
+        os << e;
+    }
 }
 
 template <typename T>
-inline T max(const std::vector<T> &X) {
-  assert(!X.empty());
+inline std::ostream& operator<<(std::ostream &os, const std::vector<T> &vec) {
+    io::print(os, vec.begin(), vec.end(), '[', ']');
+    return os;
+}
 
-  T max = X[0];
-  for (unsigned i = 0; i < X.size(); ++i) {
-    max = max < X[i] ? X[i] : max;
-  }
-  return max;
+template <typename T, size_t N>
+inline std::ostream& operator<<(std::ostream &os, const std::array<T, N> &array) {
+    io::print(os, array.begin(), array.end(), '[', ']');
+    return os;
 }
 
 template <typename T>
-inline T min(const std::vector<T> &X) {
-  assert(!X.empty());
-
-  T min = X[0];
-  for (unsigned i = 0; i < X.size(); ++i) {
-    min = X[i] < min ? X[i] : min;
-  }
-  return min;
+inline std::ostream& operator<<(std::ostream &os, const std::set<T> &set) {
+    io::print(os, set.begin(), set.end(), '{', '}');
+    return os;
 }
 
 template <typename T>
-inline void shuffle(std::vector<T> &vector) {
-  std::random_device rd;
-  std::default_random_engine engine(rd());
-  std::uniform_int_distribution<unsigned> dist(0, (unsigned) vector.size() - 1);
-
-  for (unsigned i = 0; i < vector.size(); ++i) {
-    unsigned r = dist(engine);
-    T tmp = vector[r];
-    vector[r] = std::move(vector[i]);
-    vector[i] = std::move(tmp);
-  }
+inline std::ostream& operator<<(std::ostream &os, const std::unordered_set<T> &set) {
+    io::print(os, set.begin(), set.end(), '{', '}');
+    return os;
 }
 
-template <class T>
-std::vector<T>& operator+=(std::vector<T>& lhs, const std::vector<T>& rhs) {
-  assert(lhs.size() == rhs.size());
-  for (uint i=0; i<rhs.size(); i++)
-    lhs[i] += rhs[i];
-  return lhs;
+template <typename K, typename V>
+inline std::ostream& operator<<(std::ostream &os, const std::unordered_map<K, V> &map) {
+    io::print(os, map.begin(), map.end(), '{', '}', [](std::ostream &os, decltype(map.begin()) it) { os << it->first << ": " << it->second; });
+    return os;
 }
 
-template <class T>
-const std::vector<T> operator+(const std::vector<T>& lhs, const std::vector<T>& rhs) {
-  std::vector<T> result = lhs;
-  result += rhs;
-  return result;
+template <typename K, typename V>
+inline std::ostream& operator<<(std::ostream &os, const std::map<K, V> &map) {
+    io::print(os, map.begin(), map.end(), '{', '}', [](std::ostream &os, decltype(map.begin()) it) { os << it->first << ": " << it->second; });
+    return os;
 }
 
-template <class T>
-std::vector<T>& operator-=(std::vector<T>& lhs, const std::vector<T>& rhs) {
-  assert(lhs.size() == rhs.size());
-  for (uint i=0; i<rhs.size(); i++)
-    lhs[i] -= rhs[i];
-  return lhs;
+/***
+ * byte swap using gcc built-ins for various interger types
+ * @tparam T integer type
+ * @param x value to byte swap
+ * @return
+ */
+template<typename T>
+inline T bswap(T x) {
+    static_assert(std::is_integral<T>::value, "bswap only works on integer types");
+    if (std::is_same<T, int8_t>::value || std::is_same<T, uint8_t>::value) {
+        return (T) x;
+    } else if (std::is_same<T, int16_t>::value || std::is_same<T, uint16_t>::value) {
+        return (T) __bswap_16((uint16_t) x);
+    } else if (std::is_same<T, int32_t>::value || std::is_same<T, uint32_t>::value) {
+        return (T) __bswap_32((uint32_t) x);
+    } else if (std::is_same<T, int64_t>::value || std::is_same<T, uint64_t>::value) {
+        return (T) __bswap_64((uint64_t) x);
+    }
 }
 
-template <class T>
-const std::vector<T> operator-(const std::vector<T>& lhs, const std::vector<T>& rhs) {
-  std::vector<T> result = lhs;
-  result -= rhs;
-  return result;
-}
-
-template <class T>
-std::vector<T>& operator*=(std::vector<T>& lhs, const std::vector<T>& rhs) {
-  assert(lhs.size() == rhs.size());
-  for (uint i=0; i<rhs.size(); i++)
-    lhs[i] *= rhs[i];
-  return lhs;
-}
-
-template <class T>
-const std::vector<T> operator*(const std::vector<T>& lhs, const std::vector<T>& rhs) {
-  std::vector<T> result = lhs;
-  result *= rhs;
-  return result;
-}
-
-template <class T>
-std::vector<T>& operator*=(std::vector<T>& lhs, const T& rhs) {
-  for (uint i=0; i<lhs.size(); i++)
-    lhs[i] *= rhs;
-  return lhs;
-}
-
-template <class T>
-const std::vector<T> operator*(const std::vector<T>& lhs, const T& rhs) {
-  std::vector<T> result = lhs;
-  result *= rhs;
-  return result;
-}
-
-template <class T>
-const std::vector<T> operator*(const T& lhs, const std::vector<T>& rhs) {
-  return rhs * lhs;
-}
-
-#endif // __COMMON_HPP
+#endif // __UTIL_HPP

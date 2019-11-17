@@ -10,7 +10,7 @@
 #include <vector>
 #include <cmath>
 #include <limits>
-#include <util.hpp>
+#include <common.hpp>
 #include <random>
 #include <array>
 
