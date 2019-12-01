@@ -44,6 +44,8 @@ int main(int argc, const char *argv[]) {
     // parse command line arguments, override config file parameters
     config::parse(args);
 
+    std::cout << "OpenCV " << cv::getVersionString() << std::endl;
+
     // load variables from config
     const int port = config::get_as<int>("PORT");
     const int width = config::get_as<int>("WIDTH");
@@ -139,8 +141,6 @@ int main(int argc, const char *argv[]) {
     std::vector<unsigned char> buffer(width * height * 3);
     boost::system::error_code error;
     bool camera_enabled = true;
-    int i = 0;
-    std::vector<ObjectDetector::Prediction> predictions;
 
     // main control loop
 	do {
@@ -178,9 +178,8 @@ int main(int argc, const char *argv[]) {
 	    // YOLOv3 needs input to be either (320, 320) or (416, 416)
 	    cv::resize(frame, frame, Size(320, 320));
 
-
 	    // run frame through detector
-	    predictions = detector.run(frame, true);
+	    detector(frame);
 
         // send frame over network
 	    uint32_t n = 0;
