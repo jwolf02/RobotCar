@@ -5,7 +5,7 @@
 static void drawPrediction(int classId, float conf, int left, int top, int right, int bottom, cv::Mat& frame, const std::vector<std::string> &classes) {
     cv::rectangle(frame, cv::Point(left, top), cv::Point(right, bottom), cv::Scalar(0, 255, 0));
 
-    const std::string label = classId < classes.size() ? classes[classId] : cv::format("%.2f", conf);
+    const std::string label = (classId < classes.size() ? classes[classId] + " " : "") + std::string(cv::format("%.2f", conf));
 
     int baseLine;
     cv::Size labelSize = cv::getTextSize(label, cv::FONT_HERSHEY_SIMPLEX, 0.5, 1, &baseLine);
@@ -214,13 +214,5 @@ std::vector<ObjectDetector::Prediction> ObjectDetector::postprocess(cv::Mat &fra
             pred.emplace_back(Prediction(classIds[idx], boxes[idx].x, boxes[idx].y, boxes[idx].width,
                                                                     boxes[idx].height, confidences[idx])); });
 
-    // draw predictions
-    if (drawPred) {
-        for (auto idx : indices) {
-            const cv::Rect box = boxes[idx];
-            drawPrediction(classIds[idx], confidences[idx], box.x, box.y,
-                           box.x + box.width, box.y + box.height, frame, _classes);
-        }
-    }
     return pred;
 }

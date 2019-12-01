@@ -88,8 +88,8 @@ int main(int argc, const char *argv[]) {
 
     // load object detector
     ObjectDetector detector(model, config, framework);
-    detector.setBackend(cv::dnn::DNN_BACKEND_VKCOM);
-    detector.setTarget(cv::dnn::DNN_TARGET_VULKAN);
+    detector.setBackend(cv::dnn::DNN_BACKEND_DEFAULT);
+    detector.setTarget(cv::dnn::DNN_TARGET_CPU);
     detector.getOutputLayers();
     detector.setConfidenceThreshold(threshold);
     detector.setNMSThreshold(nms_threshold);

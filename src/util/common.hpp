@@ -100,7 +100,7 @@ namespace string {
             return strtold(str.c_str(), nullptr);
         } // bool
         else if (std::is_same<T, bool>::value) {
-            return str == "true" || str == "1" || str == "True" || str == "TRUE";
+            return (str == "true" || str == "1" || str == "True" || str == "TRUE");
         } else {
             throw std::domain_error("cannot convert std::string to specified type");
         }
