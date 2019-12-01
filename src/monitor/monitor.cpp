@@ -1,10 +1,15 @@
 #include <monitor.hpp>
-#include <opencv2/opencv.hpp>
 #include <boost/asio.hpp>
 #include <mutex>
 #include <thread>
 #include <atomic>
 #include <chrono>
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/videoio/videoio.hpp>
+#include <opencv2/video/video.hpp>
+#include <opencv2/dnn.hpp>
 
 using boost::asio::ip::tcp;
 
@@ -62,7 +67,7 @@ static void transceiver() {
             cv::imdecode(buffer, cv::IMREAD_COLOR, &tmp);
             window->setFrameSize(tmp.size[1], tmp.size[0]);
             cv::resize(tmp, scaled, cv::Size(640, 480));
-            cv::cvtColor(scaled, frame, CV_BGR2RGB);
+            cv::cvtColor(scaled, frame, cv::COLOR_RGB2BGR);
             window->setFrame(frame);
         }
 

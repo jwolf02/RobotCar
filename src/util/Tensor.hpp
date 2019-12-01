@@ -814,20 +814,6 @@ inline matrix<double> dot(const matrix<double> &A, const matrix<double> &B) {
 #endif
 
 template <typename T>
-inline matrix<T> matrix_power(const matrix<T> &mat, size_t exp) {
-  if (mat.shape(0) != mat.shape(1))
-    throw std::runtime_error("matrix is not quadratic");
-
-  if (exp == 1) {
-    return matrix<T>(mat);
-  } else if (exp % 2 == 0){
-    return power(dot(mat, mat), exp / 2);
-  } else {
-    return dot(power(dot(mat, mat), (exp - 1) / 2), mat);
-  }
-}
-
-template <typename T>
 matrix<T> transpose(const matrix<T> &mat) {
   matrix<T> tmp(mat.shape(1), mat.shape(0));
   for (size_t i = 0; i < mat.shape(0); ++i) {

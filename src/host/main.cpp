@@ -9,8 +9,12 @@
 #include <L298NHBridge.hpp>
 #include <common.hpp>
 #include <config.hpp>
+#include <ObjectDetector.hpp>
+#include <fstream>
 
 using boost::asio::ip::tcp;
+using namespace cv;
+using namespace cv::dnn;
 
 #define SEND(sck, ptr, n, err)  if (sck.is_open()) { \
                                     boost::asio::write(sck, boost::asio::buffer(ptr, n), err); \
@@ -26,7 +30,6 @@ using boost::asio::ip::tcp;
 
 int main(int argc, const char *argv[]) {
     const std::vector<std::string> args(argv, argv + argc);
-    std::cout << args << std::endl;
     if (args.size() > 1 && string::starts_with(args[1], "--config=")) {
         auto tokens = string::split(args[1], "=");
         if (tokens.size() >= 2) {
@@ -38,16 +41,8 @@ int main(int argc, const char *argv[]) {
             }
         }
     }
-
-    // override config with command line arguments
-    for (int i = 1; i < args.size(); ++i) {
-        auto tokens = string::split(args[i], "=");
-        if (tokens.size() >= 2) {
-            const auto key = string::to_upper(string::trim(tokens[0], "- \t"));
-            const auto value = string::trim(tokens[1]);
-            config::set(key, value);
-        }
-    }
+    // parse command line arguments, override config file parameters
+    config::parse(args);
 
     // load variables from config
     const int port = config::get_as<int>("PORT");
@@ -62,6 +57,15 @@ int main(int argc, const char *argv[]) {
     const int IN3 = config::get_as<int>("IN3");
     const int IN4 = config::get_as<int>("IN4");
     const int ENB = config::get_as<int>("ENB");
+
+    const std::string model = config::get("MODEL");
+    const std::string config = config::get("CONFIG");
+    const std::string framework = config::get("FRAMEWORK");
+
+    const int backend = config::get_as<int>("BACKEND");
+    const int target = config::get_as<int>("TARGET");
+    const float threshold = config::get_as<float>("THRESHOLD");
+    const float nms_threshold = config::get_as<float>("NMS_THRESHOLD");
 
     L298NHBridge bridge(ENA, IN1, IN2, IN3, IN4, ENB);
 
@@ -79,6 +83,29 @@ int main(int argc, const char *argv[]) {
     std::cout << "frame_size=(" << camera.get(cv::CAP_PROP_FRAME_WIDTH) << ", "
                 << camera.get(cv::CAP_PROP_FRAME_HEIGHT)
                 << "), FPS=" << camera.get(cv::CAP_PROP_FPS) << std::endl;
+
+    // load object detector
+    ObjectDetector detector(model, config, framework);
+    detector.setBackend(cv::dnn::DNN_BACKEND_VKCOM);
+    detector.setTarget(cv::dnn::DNN_TARGET_VULKAN);
+    detector.getOutputLayers();
+    detector.setConfidenceThreshold(threshold);
+    detector.setNMSThreshold(nms_threshold);
+    detector.setDetectableClasses(2);
+
+    // check if list of classes can be loaded
+    std::vector<std::string> classes;
+    if (config::contains("CLASSES")) {
+        std::ifstream file(config::get("CLASSES"));
+        if (file) {
+            std::string line;
+            while (std::getline(file, line, '\n')) {
+                classes.push_back(line);
+            }
+            file.close();
+        }
+    }
+    detector.setClasses(classes);
 
     // setup boost socket
     boost::asio::io_service io_service;
@@ -112,6 +139,8 @@ int main(int argc, const char *argv[]) {
     std::vector<unsigned char> buffer(width * height * 3);
     boost::system::error_code error;
     bool camera_enabled = true;
+    int i = 0;
+    std::vector<ObjectDetector::Prediction> predictions;
 
     // main control loop
 	do {
@@ -146,6 +175,14 @@ int main(int argc, const char *argv[]) {
 	        break;
 	    }
 
+	    // YOLOv3 needs input to be either (320, 320) or (416, 416)
+	    cv::resize(frame, frame, Size(320, 320));
+
+
+	    // run frame through detector
+	    predictions = detector.run(frame, true);
+
+        // send frame over network
 	    uint32_t n = 0;
 	    if (camera_enabled) {
             cv::imencode(".jpeg", frame, buffer);

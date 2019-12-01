@@ -16,3 +16,36 @@ IN2=13
 IN3=19
 IN4=26
 ENB=21
+
+CLASSES=/home/jwolf/Projects/RobotCar/resources/coco_classes.txt
+
+# YOLO-v3 files
+MODEL=/home/jwolf/Projects/RobotCar/models/YOLOv3/yolov3-tiny.weights
+CONFIG=/home/jwolf/Projects/RobotCar/models/YOLOv3/yolov3-tiny.cfg
+FRAMEWORK=darknet
+
+# SSD Mobilenet v1 files
+#MODEL=/home/jwolf/Projects/RobotCar/models/Mobilenet-SSDv1/frozen_inference_graph.pb
+#CONFIG=/home/jwolf/Projects/RobotCar/models/Mobilenet-SSDv1/ssd_mobilenet_v2_coco_2017_11_17.pbtxt
+#FRAMEWORK=tensorflow
+
+# SSD Mobilnet v2 files
+#MODEL=/home/jwolf/Projects/RobotCar/models/Mobilenet-SSDv2/frozen_inference_graph.pb
+#CONFIG=/home/jwolf/Projects/RobotCar/models/Mobilenet-SSDv2/ssd_mobilenet_v2_coco_2018_03_29.pbtxt
+#FRAMEWORK=tensorflow
+
+# OpenCV DNN
+# backend     Choose one of computation backends
+#             0: automatically (by default)
+#             1: Halide language (http://halide-lang.org/)
+#             2: Intel's Deep Learning Inference Engine (https://software.intel.com/openvino-toolkit)
+#             3: OpenCV implementation
+# target      Choose one of target computation devices
+#             0: CPU target (by default)
+#             1: OpenCL
+#             2: OpenCL fp16 (half-float precision)
+#             3: VPU
+BACKEND=0
+TARGET=0
+THRESHOLD=0.3
+NMS_THRESHOLD=0.4

@@ -58,15 +58,27 @@ namespace string {
     }
 
     /***
+     * equals ignore case
+     * @param str1
+     * @param str2
+     * @return
+     */
+    inline bool iequals(const std::string &str1, const std::string &str2) {
+        return str1.size() == str2.size() ? std::equal(str1.begin(), str1.end(), str2.begin(), [](char a, char b) -> bool {
+            return std::tolower(a) == std::tolower(b);
+        }) : false;
+    }
+
+    /***
      * cast string to arithmetic type specified by the template argument
      * @tparam T type to case to
      * @param str string to be casted
      * @return arithmetic type
      */
     template<typename T>
-    inline T to(const std::string &str) {
+    constexpr T to(const std::string &str) {
         static_assert(std::is_fundamental<T>::value && (std::is_arithmetic<T>::value || std::is_same<T, bool>::value),
-                      "cannot convert string to non-arithmetic type");
+                      "cannot convert std::string to non-arithmetic type");
 
         // signed types
         if (std::is_same<T, char>::value || std::is_same<T, short>::value || std::is_same<T, int>::value ||
@@ -90,7 +102,7 @@ namespace string {
         else if (std::is_same<T, bool>::value) {
             return str == "true" || str == "1" || str == "True" || str == "TRUE";
         } else {
-            throw std::domain_error("cannot convert string to specified type");
+            throw std::domain_error("cannot convert std::string to specified type");
         }
     }
 
@@ -134,7 +146,7 @@ namespace seq {
     template<typename iterator>
     inline decltype(iterator::operator*) min(iterator begin, iterator end) {
         if (end - begin == 0) {
-            throw std::runtime_error("empty sequence");
+            throw std::length_error("empty sequence");
         }
 
         iterator min = begin;
@@ -147,7 +159,7 @@ namespace seq {
     template<typename iterator>
     inline decltype(iterator::operator*) max(iterator begin, iterator end) {
         if (end - begin == 0) {
-            throw std::runtime_error("empty sequence");
+            throw std::length_error("empty sequence");
         }
 
         iterator max = begin;
@@ -160,7 +172,7 @@ namespace seq {
     template<typename iterator>
     inline uint64_t argmin(iterator begin, iterator end) {
         if (end - begin == 0) {
-            throw std::runtime_error("empty sequence");
+            throw std::length_error("empty sequence");
         }
 
         iterator min = begin;
@@ -173,7 +185,7 @@ namespace seq {
     template<typename iterator>
     inline uint64_t argmax(iterator begin, iterator end) {
         if (end - begin == 0) {
-            throw std::runtime_error("empty sequence");
+            throw std::length_error("empty sequence");
         }
 
         iterator max = begin;
@@ -181,21 +193,6 @@ namespace seq {
             max = *it > *max ? it : max;
         }
         return max - begin;
-    }
-
-    template <typename iterator>
-    inline void shuffle(iterator begin, iterator end) {
-        if (end - begin == 0) {
-            throw std::runtime_error("empty sequence");
-        }
-
-        std::random_device rd;
-        std::default_random_engine engine(rd());
-        std::uniform_int_distribution<uint64_t> dist(0, end - begin);
-
-        for (auto it = begin; it != end; ++it) {
-            std::swap(*it, *(begin + dist(engine)));
-        }
     }
 }
 

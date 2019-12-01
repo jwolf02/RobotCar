@@ -1,6 +1,8 @@
 #ifndef __GPIO_HPP
 #define __GPIO_HPP
 
+#include <functional>
+
 #if defined(WIRING_PI)
 #include <wiringPi.h>
 #include <softPwm.h>
@@ -60,6 +62,11 @@ namespace gpio {
     constexpr int HIGH = __HIGH_VAL;
     constexpr int LOW = __LOW_VAL;
 
+    // edge constants
+    constexpr int EDGE_RISING = 0;
+    constexpr int EDGE_FALLING = 1;
+    constexpr int EDGE_BOTH = 2;
+
     // check if build uses some GPIO library
     bool hardware_support();
 
@@ -83,6 +90,14 @@ namespace gpio {
         return digitalRead(pin);
         #else
         return -1;
+        #endif
+    }
+
+    inline void edge(int pin, int edge_type, const std::function<void (int pin, int edge_type)> &callback) {
+        #if defined(SYS_GPIO)
+        setIsr(pin, edge_type, callback);
+        #else
+        throw std::runtime_error("edge interrupt is only supported with SYS_GPIO backend");
         #endif
     }
 
@@ -115,9 +130,7 @@ namespace gpio {
             }
             #endif
         }
-
     }
-
 }
 
 #endif // __GPIO_HPP

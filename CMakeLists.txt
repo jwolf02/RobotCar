@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5.1)
 project(RobotCar)
 
 set(CMAKE_CXX_STANDARD	14)
-set(CMAKE_CXX_FLAGS		"${CMAKE_CXX_FLAGS} -Wall -pedantic -O2 -march=native -mtune=native")
+set(CMAKE_CXX_FLAGS		"${CMAKE_CXX_FLAGS} -Wall -Wunused-variable -pedantic -O2 -march=native -mtune=native")
 
 find_package(OpenCV REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system)
@@ -68,8 +68,14 @@ if (NOT (RASPBERRY_PI OR JETSON_NANO))
 	target_link_libraries(rcmonitor-ui Qt5::Widgets Qt5::Core)
 endif()
 
+set(HOST_SOURCES 		src/util/config.hpp
+						src/util/config.cpp
+						src/host/ObjectDetector.hpp
+						src/host/ObjectDetector.cpp
+						src/host/main.cpp)
+
 # host executable
-add_executable(rchost src/host/main.cpp src/util/config.cpp)
+add_executable(rchost ${HOST_SOURCES})
 target_include_directories(rchost PUBLIC ${UTIL_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/src/host ${Boost_INCLUDE_DIR})
 target_link_libraries(rchost PUBLIC driver pthread ${OpenCV_LIBS} ${Boost_LIBRARIES})
 
