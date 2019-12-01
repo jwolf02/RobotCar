@@ -8,7 +8,7 @@
 #include <boost/asio.hpp>
 #include <L298NHBridge.hpp>
 #include <common.hpp>
-#include <config.hpp>
+#include "../config/config.hpp"
 #include <ObjectDetector.hpp>
 #include <fstream>
 

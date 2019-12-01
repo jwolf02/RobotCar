@@ -34,6 +34,16 @@ endif()
 
 set(UTIL_INCLUDE_DIR	${CMAKE_CURRENT_SOURCE_DIR}/src/util)
 
+set(CONFIG_INCLUDE		src/config/config.hpp)
+
+set(CONFIG_SOURCES		${CONFIG_INCLUDE}
+						src/config/config.cpp)
+
+set(CONFIG_INCLUDE_DIR	${CMAKE_CURRENT_SOURCE_DIR}/src/config)
+
+add_library(config STATIC ${CONFIG_SOURCES})
+target_include_directories(config PUBLIC ${CONFIG_INCLUDE_DIR} ${UTIL_INCLUDE_DIR})
+
 set(DRIVER_INCLUDE 		src/driver/L298NHBridge.hpp
 						src/driver/HC_SR04.hpp
 						src/driver/gpio.hpp
@@ -68,16 +78,15 @@ if (NOT (RASPBERRY_PI OR JETSON_NANO))
 	target_link_libraries(rcmonitor-ui Qt5::Widgets Qt5::Core)
 endif()
 
-set(HOST_SOURCES 		src/util/config.hpp
-						src/util/config.cpp
-						src/host/ObjectDetector.hpp
+set(HOST_SOURCES 		src/host/ObjectDetector.hpp
 						src/host/ObjectDetector.cpp
 						src/host/main.cpp)
 
 # host executable
 add_executable(rchost ${HOST_SOURCES})
-target_include_directories(rchost PUBLIC ${UTIL_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/src/host ${Boost_INCLUDE_DIR})
-target_link_libraries(rchost PUBLIC driver pthread ${OpenCV_LIBS} ${Boost_LIBRARIES})
+target_include_directories(rchost PUBLIC ${UTIL_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/src/host ${Boost_INCLUDE_DIR}
+											${CONFIG_INCLUDE_DIR})
+target_link_libraries(rchost PUBLIC driver pthread config ${OpenCV_LIBS} ${Boost_LIBRARIES})
 
 install(TARGETS rcmonitor-ui DESTINATION /usr/bin OPTIONAL)
 install(TARGETS rchost DESTINATION /usr/bin OPTIONAL)
