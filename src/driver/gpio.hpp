@@ -97,7 +97,7 @@ namespace gpio {
         #if defined(SYS_GPIO)
         setIsr(pin, edge_type, callback);
         #else
-        throw std::runtime_error("edge interrupt is only supported with SYS_GPIO backend");
+        throw std::runtime_error("edge interrupt is only supported with SYS_GPIO getBackend");
         #endif
     }
 

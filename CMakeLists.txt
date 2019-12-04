@@ -34,10 +34,21 @@ endif()
 
 set(UTIL_INCLUDE_DIR	${CMAKE_CURRENT_SOURCE_DIR}/src/util)
 
+set(SOCKET_INCLUDE		src/socket/Socket.hpp)
+
+set(SOCKET_SOURCES		${SOCKET_INCLUDE}
+						src/socket/Socket.cpp)
+
+set(SOCKET_INCLUDE_DIR	${CMAKE_CURRENT_SOURCE_DIR}/src/socket)
+
+add_library(socket STATIC ${SOCKET_SOURCES})
+target_include_directories(socket PUBLIC ${UTIL_INCLUDE_DIR} ${SOCKET_INCLUDE_DIR} ${Boost_INCLUDE_DIR})
+target_link_libraries(socket PUBLIC ${Boost_LIBRARIES})
+
 set(CONFIG_INCLUDE		src/config/config.hpp)
 
 set(CONFIG_SOURCES		${CONFIG_INCLUDE}
-						src/config/config.cpp)
+						src/config/config.cpp src/socket/Socket.cpp)
 
 set(CONFIG_INCLUDE_DIR	${CMAKE_CURRENT_SOURCE_DIR}/src/config)
 

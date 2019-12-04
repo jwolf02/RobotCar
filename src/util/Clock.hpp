@@ -4,20 +4,9 @@
 #include <chrono>
 #include <cmath>
 #include <type_traits>
-#include <thread>
 
 class Clock {
 public:
-
-    template <typename T=std::chrono::seconds>
-    static uint64_t time_since_epoch() {
-        return std::chrono::duration_cast<T>(std::chrono::system_clock::now().time_since_epoch()).count();
-    }
-
-    template <typename T=std::chrono::milliseconds>
-    static void sleep_for(uint64_t time) {
-        std::this_thread::sleep_for(T(time));
-    }
 
     Clock() = default;
 

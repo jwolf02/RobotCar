@@ -10,7 +10,7 @@ Users can type controls in the monitor program that are sended to
 the host.  
 Optionally an object detector can be employed to detect objects in the  
 image stream which are then marked before they are streamed over the  
-network.  
+getNetwork.  
 Configuration parameters are loaded from a config file.  
 
 ## Control    

@@ -8,7 +8,7 @@
 #include <boost/asio.hpp>
 #include <L298NHBridge.hpp>
 #include <common.hpp>
-#include "../config/config.hpp"
+#include <config.hpp>
 #include <ObjectDetector.hpp>
 #include <fstream>
 
@@ -66,8 +66,9 @@ int main(int argc, const char *argv[]) {
 
     const int backend = config::get_as<int>("BACKEND");
     const int target = config::get_as<int>("TARGET");
-    const float threshold = config::get_as<float>("THRESHOLD");
-    const float nms_threshold = config::get_as<float>("NMS_THRESHOLD");
+    const auto threshold = config::get_as<float>("THRESHOLD");
+    const auto nms_threshold = config::get_as<float>("NMS_THRESHOLD");
+    const auto scale = config::get_or_default<float>("SCALE", 1.0f);
 
     L298NHBridge bridge(ENA, IN1, IN2, IN3, IN4, ENB);
 
@@ -93,7 +94,9 @@ int main(int argc, const char *argv[]) {
     detector.getOutputLayers();
     detector.setConfidenceThreshold(threshold);
     detector.setNMSThreshold(nms_threshold);
-    detector.setDetectableClasses(2);
+    detector.setSize(cv::Size(320, 320));
+    detector.setCrop(true);
+    detector.setScale(config::get_or_default<float>("SCALE", 1.0f));
 
     // check if list of classes can be loaded
     std::vector<std::string> classes;
@@ -175,13 +178,12 @@ int main(int argc, const char *argv[]) {
 	        break;
 	    }
 
+	    cv::resize(frame, frame, cv::Size(320, 320));
+
 	    // YOLOv3 needs input to be either (320, 320) or (416, 416)
-	    cv::resize(frame, frame, Size(320, 320));
+	    detector.run(frame, true);
 
-	    // run frame through detector
-	    detector(frame);
-
-        // send frame over network
+        // send frame over getNetwork
 	    uint32_t n = 0;
 	    if (camera_enabled) {
             cv::imencode(".jpeg", frame, buffer);

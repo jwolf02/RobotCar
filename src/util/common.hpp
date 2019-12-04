@@ -15,6 +15,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <random>
+#include <netinet/in.h>
 
 namespace string {
 
@@ -100,7 +101,12 @@ namespace string {
             return strtold(str.c_str(), nullptr);
         } // bool
         else if (std::is_same<T, bool>::value) {
-            return (str == "true" || str == "1" || str == "True" || str == "TRUE");
+            if (str == "true" || str == "1" || str == "True" || str == "TRUE")
+                return true;
+            else if (str == "false" || str == "0" || str == "False" || str == "FALSE")
+                return false;
+            else
+                throw std::runtime_error("cannot cast std::string '" + str + "' to bool");
         } else {
             throw std::domain_error("cannot convert std::string to specified type");
         }
@@ -292,6 +298,21 @@ inline T bswap(T x) {
     } else if (std::is_same<T, int64_t>::value || std::is_same<T, uint64_t>::value) {
         return (T) __bswap_64((uint64_t) x);
     }
+}
+
+/***
+ * convert data type to network byte order and back
+ * @tparam T
+ * @param x
+ * @return
+ */
+template <typename T>
+inline T inet_bswap(T x) {
+    #if BYTE_ORDER == LITTLE_ENDIAN
+    return bswap<T>(x);
+    #else
+    return (T) x;
+    #endif
 }
 
 #endif // __UTIL_HPP

@@ -4,12 +4,9 @@
 #include <thread>
 #include <atomic>
 #include <chrono>
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/videoio/videoio.hpp>
-#include <opencv2/video/video.hpp>
-#include <opencv2/dnn.hpp>
+#include <opencv2/core.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp>
 
 using boost::asio::ip::tcp;
 
@@ -48,7 +45,7 @@ static void transceiver() {
             }
         }
 
-        // read image from network if camera enabled
+        // read image from getNetwork if camera enabled
         if (window->cameraEnabled()) {
             // read size of compressed image from frame
             RECV(sck, &n, sizeof(n), err);
@@ -57,7 +54,7 @@ static void transceiver() {
             }
             n = ntohl(n);
 
-            // read image from network
+            // read image from getNetwork
             buffer.reserve(n);
             RECV(sck, buffer.data(), n, err);
             if (err) {
