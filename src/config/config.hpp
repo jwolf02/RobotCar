@@ -2,6 +2,7 @@
 #define __CONFIG_HPP
 
 #include <string>
+#include <vector>
 #include <common.hpp>
 
 namespace config {
