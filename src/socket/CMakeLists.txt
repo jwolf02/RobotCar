@@ -2,7 +2,8 @@
 find_package(Boost REQUIRED COMPONENTS system)
 
 set(SOCKET_SOURCES		${CMAKE_CURRENT_SOURCE_DIR}/Socket.hpp
-                        ${CMAKE_CURRENT_SOURCE_DIR}/Socket.cpp)
+                        ${CMAKE_CURRENT_SOURCE_DIR}/Socket.cpp
+                        ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
 
 set(Socket_INCLUDE_DIR  ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
 

@@ -12,6 +12,8 @@ Socket* Socket::accept(boost::asio::io_service &service, Socket::protocol_t prot
     socket->_protocol = protocol;
     socket->_io_service = &service;
     socket->_acceptor = new tcp::acceptor(service, tcp::endpoint(protocol == IPv4 ? tcp::v4() : tcp::v6(), port));
+    boost::asio::socket_base::reuse_address option(true);
+    socket->_acceptor->set_option(option);
     socket->_socket = new tcp::socket(service);
     try {
         socket->_acceptor->accept(*socket->_socket);
@@ -29,11 +31,13 @@ Socket* Socket::connect(boost::asio::io_service &service, const std::string &add
     auto socket = new Socket();
     socket->_type = CLIENT;
     socket->_io_service = &service;
+    socket->_socket = new tcp::socket(io_service);
     try {
         socket->_socket->connect(tcp::endpoint(boost::asio::ip::address::from_string(address), port));
     } catch (std::exception &ex) {
         throw std::runtime_error(ex.what());
     }
+    return socket;
 }
 
 Socket::~Socket() {
@@ -41,7 +45,7 @@ Socket::~Socket() {
 }
 
 bool Socket::isOpen() const {
-    _socket->is_open();
+    return _socket->is_open();
 }
 
 size_t Socket::send(const void *buffer, size_t len) {

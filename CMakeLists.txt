@@ -2,10 +2,7 @@ cmake_minimum_required(VERSION 3.5.1)
 project(RobotCar)
 
 set(CMAKE_CXX_STANDARD	14)
-set(CMAKE_CXX_FLAGS		"${CMAKE_CXX_FLAGS} -std=c++11 -pedantic -O3 -mtune=native")
-
-find_package(OpenCV REQUIRED)
-find_package(Boost REQUIRED COMPONENTS system)
+set(CMAKE_CXX_FLAGS		"${CMAKE_CXX_FLAGS} -pedantic -O3 -mtune=native")
 
 if(RASPBERRY_PI)
 	# building rchost for a Raspberry Pi based system using wiringPi
@@ -23,6 +20,7 @@ else()
 	message("-- No GPIO library support")
 endif()
 
+# modules
 add_subdirectory(src/util)
 add_subdirectory(src/socket)
 add_subdirectory(src/config)
@@ -31,5 +29,6 @@ add_subdirectory(src/timer)
 add_subdirectory(src/monitor)
 add_subdirectory(src/host)
 
+# install programs
 install(TARGETS rcmonitor-ui DESTINATION /usr/bin OPTIONAL)
 install(TARGETS rchost DESTINATION /usr/bin OPTIONAL)
