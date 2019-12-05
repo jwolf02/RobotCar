@@ -27,6 +27,9 @@ namespace string {
      * @return a vector of strings
      */
     inline std::vector<std::string> split(const std::string &str, const std::string &delim = " ") {
+        if (delim.empty()) {
+            throw std::runtime_error("empty delimiter");
+        }
         std::vector<std::string> tokens;
         size_t last = 0;
         size_t next = 0;
@@ -118,7 +121,7 @@ namespace string {
      * @param whitespace
      * @return
      */
-    inline std::string trim(const std::string &str, const std::string &whitespace = " \t") {
+    inline std::string trim(const std::string &str, const std::string &whitespace = " \t\n\r") {
         const size_t begin = str.find_first_not_of(whitespace);
         const size_t end = str.find_last_not_of(whitespace);
         return str.substr(begin, end - begin + 1);
@@ -313,6 +316,10 @@ inline T inet_bswap(T x) {
     #else
     return (T) x;
     #endif
+}
+
+inline bool exists(const std::string& fname) {
+    return (access(fname.c_str(), F_OK ) != -1);
 }
 
 #endif // __UTIL_HPP

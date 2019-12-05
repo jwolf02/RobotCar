@@ -5,10 +5,10 @@
 void drawPredictions(cv::Mat &frame, const std::vector<Prediction> &predictions, bool drawLabels,
                                           const cv::Scalar &color, int thickness, int lineType, int shift)
 {
+    CV_Assert(!frame.empty());
     for (const auto &pred : predictions) {
         // draw bounding box around object
-        cv::rectangle(frame, pred.offset, cv::Point(pred.offset.x + pred.size.width, pred.offset.y + pred.size.height),
-                color, thickness, lineType, shift);
+        cv::rectangle(frame, pred.rect, color, thickness, lineType, shift);
 
         if (drawLabels) {
             // either label with classname or just present the confidence threshold
@@ -18,8 +18,8 @@ void drawPredictions(cv::Mat &frame, const std::vector<Prediction> &predictions,
             cv::Size labelSize = cv::getTextSize(label, cv::FONT_HERSHEY_SIMPLEX, 0.5, 1, &baseLine);
 
             // draw label on grey background
-            int left = pred.offset.x;
-            int top = std::max(pred.offset.y, labelSize.height);
+            int left = pred.rect.x;
+            int top = std::max(pred.rect.y, labelSize.height);
             cv::rectangle(frame, cv::Point(left, top - labelSize.height),
                           cv::Point(left + labelSize.width, top + baseLine), cv::Scalar::all(255), cv::FILLED);
             cv::putText(frame, label, cv::Point(left, top), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar());
@@ -28,21 +28,12 @@ void drawPredictions(cv::Mat &frame, const std::vector<Prediction> &predictions,
 }
 
 ObjectDetector::ObjectDetector(const cv::String &model, const cv::String &config, const cv::String &framework) {
-    readNetwork(model, config, framework);
+    readNet(model, config, framework);
 }
 
-void ObjectDetector::readNetwork(const cv::String & model, const cv::String & config, const cv::String & framework) {
+void ObjectDetector::readNet(const cv::String & model, const cv::String & config, const cv::String & framework) {
     _net = cv::dnn::readNet(model, config, framework);
-}
-
-void ObjectDetector::setBackend(cv::dnn::Backend backend) {
-    _backend = backend;
-    _net.setPreferableBackend(backend);
-}
-
-void ObjectDetector::setTarget(cv::dnn::Target target) {
-    _target = target;
-    _net.setPreferableTarget(target);
+    _out_names = _net.getUnconnectedOutLayersNames();
 }
 
 void ObjectDetector::setScale(double scale) {
@@ -65,8 +56,9 @@ void ObjectDetector::setSize(const cv::Size &size) {
     _size = size;
 }
 
-void ObjectDetector::setType(int type) {
-    _type = type;
+void ObjectDetector::setDDepth(int ddepth) {
+    CV_Assert(ddepth == CV_8U || ddepth == CV_32F);
+    _ddepth = ddepth;
 }
 
 void ObjectDetector::setNMSThreshold(float nmsThreshold) {
@@ -81,38 +73,17 @@ void ObjectDetector::setClasses(const std::vector<std::string> &classes) {
     _classes = classes;
 }
 
-void ObjectDetector::setDetectableClasses(unsigned int num_classes) {
-    _num_classes = num_classes;
-}
-
-void ObjectDetector::getOutputLayers() {
-    _out_names = _net.getUnconnectedOutLayersNames();
-}
-
-std::vector<Prediction> ObjectDetector::run(cv::Mat &frame, bool drawPred, bool drawLabel) {
-    const auto begin = std::chrono::system_clock::now();
+std::vector<Prediction> ObjectDetector::run(const cv::Mat &frame) {
+    CV_Assert(!frame.empty());
     preprocess(frame);
     std::vector<cv::Mat> outs;
     _net.forward(outs, _out_names);
     std::vector<Prediction> pred;
-    postprocess(frame, outs, pred);
-    if (drawPred) {
-        drawPredictions(frame, pred, drawLabel);
-    }
-    _latency = static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - begin).count());
-    _fps = 1.0f / _latency;
+    postprocess(_size == cv::Size(0, 0) ? cv::Size(frame.cols, frame.rows) : _size, outs, pred);
     return pred;
 }
 
-cv::dnn::Target ObjectDetector::getTarget() const {
-    return _target;
-}
-
-cv::dnn::Backend ObjectDetector::getBackend() const {
-    return _backend;
-}
-
-const cv::dnn::Net &ObjectDetector::getNetwork() const {
+cv::dnn::Net& ObjectDetector::getNet() {
     return _net;
 }
 
@@ -124,38 +95,22 @@ float ObjectDetector::getNMSThreshold() const {
     return _nms_threshold;
 }
 
-float ObjectDetector::getFPS() const {
-    return _fps;
-}
-
-float ObjectDetector::getLatency() const {
-    return _latency;
-}
-
-std::vector<cv::dnn::MatShape> ObjectDetector::getInputShapes() const {
-    cv::dnn::MatShape shape;
-    std::vector<cv::dnn::MatShape> in_shapes;
-    std::vector<cv::dnn::MatShape> out_shapes;
-    _net.getLayerShapes(shape, 0, in_shapes, out_shapes);
-    return in_shapes;
-}
-
 void ObjectDetector::preprocess(const cv::Mat &frame) {
     static cv::Mat blob;
     static const cv::Size size(_size.width == 0 ? frame.cols : _size.width, _size.height == 0 ? frame.rows : _size.height);
-    cv::dnn::blobFromImage(frame, blob, 1.0, size, _mean, _swap_rb, _crop, _type);
+    cv::dnn::blobFromImage(frame, blob, 1.0, size, cv::Scalar(), _swap_rb, _crop, _ddepth);
 
-    // Run a model
-    _net.setInput(blob, "", _scale, _mean);
     // Faster-RCNN or R-FCN
     if (_net.getLayer(0)->outputNameToIndex("im_info") != -1) {
         cv::resize(frame, frame, size);
         cv::Mat imInfo = (cv::Mat_<float>(1, 3) << size.height, size.width, 1.6f);
         _net.setInput(imInfo, "im_info");
+    } else {
+        _net.setInput(blob, "", _scale, _mean);
     }
 }
 
-void ObjectDetector::postprocess(cv::Mat &frame, const std::vector<cv::Mat> &outs, std::vector<Prediction> &pred) {
+void ObjectDetector::postprocess(const cv::Size &size, const std::vector<cv::Mat> &outs, std::vector<Prediction> &pred) {
     static std::vector<int> outLayers = _net.getUnconnectedOutLayers();
     static std::string outLayerType = _net.getLayer(outLayers[0])->type;
 
@@ -178,10 +133,10 @@ void ObjectDetector::postprocess(cv::Mat &frame, const std::vector<cv::Mat> &out
                     int width  = right - left + 1;
                     int height = bottom - top + 1;
                     if (width <= 2 || height <= 2) {
-                        left   = (int) (data[i + 3] * frame.cols);
-                        top    = (int) (data[i + 4] * frame.rows);
-                        right  = (int) (data[i + 5] * frame.cols);
-                        bottom = (int) (data[i + 6] * frame.rows);
+                        left   = (int) (data[i + 3] * size.width);
+                        top    = (int) (data[i + 4] * size.height);
+                        right  = (int) (data[i + 5] * size.width);
+                        bottom = (int) (data[i + 6] * size.height);
                         width  = right - left + 1;
                         height = bottom - top + 1;
                     }
@@ -202,12 +157,12 @@ void ObjectDetector::postprocess(cv::Mat &frame, const std::vector<cv::Mat> &out
                 cv::Mat scores = out.row(j).colRange(5, out.cols);
                 cv::Point classIdPoint;
                 double confidence;
-                cv::minMaxLoc(scores, 0, &confidence, 0, &classIdPoint);
+                cv::minMaxLoc(scores, nullptr, &confidence, nullptr, &classIdPoint);
                 if (confidence > _conf_threshold) {
-                    int centerX = (int)(data[0] * frame.cols);
-                    int centerY = (int)(data[1] * frame.rows);
-                    int width = (int)(data[2] * frame.cols);
-                    int height = (int)(data[3] * frame.rows);
+                    int centerX = (int)(data[0] * size.width);
+                    int centerY = (int)(data[1] * size.height);
+                    int width = (int)(data[2] * size.width);
+                    int height = (int)(data[3] * size.height);
                     int left = centerX - width / 2;
                     int top = centerY - height / 2;
 
@@ -228,8 +183,7 @@ void ObjectDetector::postprocess(cv::Mat &frame, const std::vector<cv::Mat> &out
     // filter for prediction sufficing NMS threshold
     pred.reserve(indices.size());
     std::for_each(indices.begin(), indices.end(), [&](int idx) {
-        if (classIds[idx] < _num_classes)
-            pred.emplace_back(Prediction(classIds[idx], boxes[idx].x, boxes[idx].y, boxes[idx].width,
+        pred.emplace_back(Prediction(classIds[idx], boxes[idx].x, boxes[idx].y, boxes[idx].width,
                     boxes[idx].height, confidences[idx], classIds[idx] < _classes.size() ? _classes[idx] : ""));
     });
 }

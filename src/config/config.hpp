@@ -76,8 +76,13 @@ namespace config {
      * @return
      */
     template <typename T>
-    inline T get_or_default(const std::string &key, T default_value) {
+    inline T get_or_default(const std::string &key, const T &default_value) {
         return contains(key) ? get_as<T>(key) : default_value;
+    }
+
+    template <>
+    inline std::string get_or_default<std::string>(const std::string &key, const std::string &default_value) {
+        return contains(key) ? get(key) : default_value;
     }
 
     /***

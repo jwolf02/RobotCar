@@ -19,6 +19,11 @@ ENB=21
 
 CLASSES=/home/jwolf/Projects/RobotCar/resources/coco_classes.txt
 
+# Output blob types
+# 0: CV_8U
+# 4: CV_32F
+DEPTH=0
+
 # YOLO-v3 files
 MODEL=/home/jwolf/Projects/RobotCar/models/yolov3-tiny.weights
 CONFIG=/home/jwolf/Projects/RobotCar/models/yolov3-tiny.cfg
@@ -43,5 +48,5 @@ SCALE=0.00392
 #             3: VPU
 BACKEND=0
 TARGET=0
-THRESHOLD=0.7
+THRESHOLD=0.5
 NMS_THRESHOLD=0.4

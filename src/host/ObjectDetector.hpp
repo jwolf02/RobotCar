@@ -14,13 +14,11 @@ public:
     Prediction() = default;
 
     Prediction(int id, int left, int top, int width, int height, float confidence, const cv::String &name="") :
-            class_id(id), offset(left, top), size(width, height), confidence(confidence), class_name(name){}
+            class_id(id), rect(left, top, width, height), confidence(confidence), class_name(name){}
 
     int class_id = -1;
 
-    cv::Point offset = cv::Point(-1, -1);
-
-    cv::Size size = cv::Size(0, 0);
+    cv::Rect rect = cv::Rect(-1, -1 , 0, 0);
 
     float confidence = -1.0;
 
@@ -28,6 +26,16 @@ public:
 
 };
 
+/***
+ * draw object detector output on frame
+ * @param frame
+ * @param predictions
+ * @param drawLabels
+ * @param color
+ * @param thickness
+ * @param lineType
+ * @param shift
+ */
 void drawPredictions(cv::Mat &frame, const std::vector<Prediction> &predictions, bool drawLabels=true,
                         const cv::Scalar &color=cv::Scalar(0, 0, 255), int thickness=1, int lineType=cv::LINE_8, int shift=0);
 
@@ -39,7 +47,9 @@ void drawPredictions(cv::Mat &frame, const std::vector<Prediction> &predictions,
 class ObjectDetector {
 public:
 
-    /// default constructor
+    /***
+     * default construct object detector
+     */
     ObjectDetector() = default;
 
     /***
@@ -50,50 +60,51 @@ public:
      */
     explicit ObjectDetector(const cv::String &model, const cv::String &config="", const cv::String &framework="");
 
-    // basically what is called by the constructor above
-    void readNetwork(const cv::String &model, const cv::String &config="", const cv::String &framework="");
-
-    /**
-     * set the preferred getBackend
-     * @param backend
+    /***
+     * read the getNetwork from the specified files
+     * @param model file containing the getNetwork parameters
+     * @param config file containing the getNetwork architecture
+     * @param framework the framwork that was used to make the mode
      */
-    void setBackend(cv::dnn::Backend backend);
+    void readNet(const cv::String &model, const cv::String &config="", const cv::String &framework="");
 
     /***
-     * set the preferred targer
-     * @param target
-     */
-    void setTarget(cv::dnn::Target target);
-
-    /***
-     * setters for various parameters
+     * set the scaling parameter, used to multiply all pixel values with
+     * prior to running the image through the detector
+     * @param scale
      */
     void setScale(double scale);
 
+    /***
+     * set the size that the image is scaled to before running the detector
+     * if this is not set, the image size is used instead
+     * this size must be an appropriate size for the network
+     * @param size
+     */
     void setSize(const cv::Size &size);
 
+    /***
+     * set the mean that is subtracted before the image is run through the detector
+     * @param mean
+     */
     void setMean(const cv::Scalar &mean);
 
+    /***
+     * indicate whether or not red and blue channel shall be swapped before
+     * the network is run
+     * @param swap
+     */
     void setSwapRB(bool swap);
 
     void setCrop(bool crop);
 
-    void setType(int type);
+    void setDDepth(int ddepth);
 
     void setNMSThreshold(float nmsThreshold);
 
     void setConfidenceThreshold(float confThreshold);
 
     void setClasses(const std::vector<std::string> &classes);
-
-    void setDetectableClasses(unsigned num_classes);
-
-    /***
-     * before running the getNetwork this function must be called,
-     * as this gets the output tensors and is dependent on the
-     * getBackend and the getNetwork
-     */
-    void getOutputLayers();
 
     /***
      * run detector on the input frame, based on the parameters
@@ -103,44 +114,34 @@ public:
      * @param drawLabel if predictions are drawn, then this indicated it the label should be drawn to the prediction
      * @return
      */
-    std::vector<Prediction> run(cv::Mat &frame, bool drawPred=false, bool drawLabel=true);
+    std::vector<Prediction> run(const cv::Mat &frame);
 
     /***
-     * getters for various parameters
+     * get handle to the underlying cv::dnn::Net object
+     * @return OpenCV's cv::dnn::Net
      */
-    cv::dnn::Backend getBackend() const;
+    cv::dnn::Net& getNet();
 
-    cv::dnn::Target getTarget() const;
-
-    const cv::dnn::Net& getNetwork() const;
-
+    /***
+     * get the confidence threshold
+     * @return confidence threshold
+     */
     float getConfidenceThreshold() const;
 
+    /***
+     * get the non-maximum suppression threshold
+     * @return non-maximum suppression threshold
+     */
     float getNMSThreshold() const;
-
-    float getFPS() const;
-
-    float getLatency() const;
-
-    std::vector<cv::dnn::MatShape> getInputShapes() const;
 
 private:
 
-    // preprocess the frame before running the detector
     void preprocess(const cv::Mat &frame);
 
-    // postprocess the output tensors from the detector to create
-    // a list of predictions
-    void postprocess(cv::Mat &frame, const std::vector<cv::Mat> &outs, std::vector<Prediction> &pred);
+    void postprocess(const cv::Size &size, const std::vector<cv::Mat> &outs, std::vector<Prediction> &pred);
 
-    cv::dnn::Backend _backend = cv::dnn::DNN_BACKEND_DEFAULT;
-
-    cv::dnn::Target _target = cv::dnn::DNN_TARGET_CPU;
-
-    // the names of the output tensors
     std::vector<cv::String> _out_names;
 
-    // class label lookup table
     std::vector<std::string> _classes;
 
     cv::dnn::Net _net;
@@ -149,22 +150,13 @@ private:
 
     double _scale = 1.0;
 
-    // mean to be subtracted from the image
     cv::Scalar _mean = cv::Scalar();
 
-    // threshold for non maximum suppression
     float _nms_threshold = 0.4;
 
-    // confidence threshold
     float _conf_threshold = 0.5;
 
-    float _fps = 0.0;
-
-    float _latency = 0.0;
-
-    unsigned _num_classes = 1000000;
-
-    int _type = CV_8U;
+    int _ddepth = CV_32F;
 
     bool _swap_rb = true;
 
