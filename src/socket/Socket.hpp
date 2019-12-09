@@ -37,53 +37,27 @@ public:
 
     template <typename T>
     size_t send(const T &x) {
-        static_assert(std::is_integral<T>::value, "can only send integer types directly");
-        const auto _x = inet_bswap(x);
-        return send(&_x, sizeof(T));
-    }
-
-    template <>
-    size_t send<float>(const float &x) {
-        return send(&x, sizeof(x));
-    }
-
-    template <>
-    size_t send<double>(const double &x) {
-        return send(&x, sizeof(x));
-    }
-
-    template <>
-    size_t send<std::string>(const std::string &x) {
-        const uint32_t str_size = x.size();
-        return send(str_size) + send((const void *) x.data(), x.size());
+        static_assert(std::is_fundamental<T>::value || std::is_arithmetic<T>::value, "can only send basic types directly");
+        if (std::is_integral<T>::value) {
+            const auto _x = inet_bswap(x);
+            return send(&_x, sizeof(T));
+        } else if (std::is_floating_point<T>::value || std::is_same<T, bool>::value) {
+            return send((const void *) &x, sizeof(x));
+        }
     }
 
     size_t recv(void *buffer, size_t len);
 
     template <typename T>
     size_t recv(T &x) {
-        static_assert(std::is_integral<T>::value, "can only receive integer types directly");
-        auto s = recv(&x, sizeof(T));
-        x = inet_bswap(x);
-        return s;
-    }
-
-    template <>
-    size_t recv<float>(float &x) {
-        return recv(&x, sizeof(x));
-    }
-
-    template <>
-    size_t recv<double>(double &x) {
-        return recv(&x, sizeof(x));
-    }
-
-    template <>
-    size_t recv<std::string>(std::string &x) {
-        uint32_t str_size;
-        size_t c = recv(&str_size, sizeof(str_size));
-        x.resize(str_size);
-        return c + recv((void *) x.data(), str_size);
+        static_assert(std::is_fundamental<T>::value || std::is_arithmetic<T>::value, "can only receive basic types directly");
+        if (std::is_integral<T>::value) {
+            auto s = recv(&x, sizeof(T));
+            x = inet_bswap(x);
+            return s;
+        } else if (std::is_floating_point<T>::value || std::is_same<T, bool>::value) {
+            return recv((void *) &x, sizeof(x));
+        }
     }
 
     void close();
@@ -110,15 +84,18 @@ private:
 
 };
 
-template <typename T>
-Socket& operator<<(Socket &socket, const T &x) {
-    socket.send<T>(x);
+Socket& operator<<(Socket &socket, const std::string &x) {
+    const uint32_t s = x.size();
+    socket.send<uint32_t>(s);
+    socket.send((const void *) x.data(), x.size());
     return socket;
 }
 
-template <typename T>
-Socket& operator>>(Socket &socket, T &x) {
-    socket.recv<T>(x);
+Socket& operator>>(Socket &socket, std::string &x) {
+    uint32_t s = 0;
+    socket.recv<uint32_t>(s);
+    x.resize(s);
+    socket.recv(const_cast<char*>(x.data()), s);
     return socket;
 }
 

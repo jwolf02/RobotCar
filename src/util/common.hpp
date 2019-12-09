@@ -15,7 +15,6 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <random>
-#include <netinet/in.h>
 
 namespace string {
 
@@ -73,6 +72,10 @@ namespace string {
         }) : false;
     }
 
+    inline bool contains(const std::string &str1, const std::string &str2) {
+        return str1.size() <= str2.size() ? str1.find_first_of(str2, 0) != std::string::npos : false;
+    }
+
     /***
      * cast string to arithmetic type specified by the template argument
      * @tparam T type to case to
@@ -87,21 +90,21 @@ namespace string {
         // signed types
         if (std::is_same<T, char>::value || std::is_same<T, short>::value || std::is_same<T, int>::value ||
             std::is_same<T, long>::value || std::is_same<T, long long>::value) {
-            return (T) strtoll(str.c_str(), nullptr, 10);
+            return (T) std::strtoll(str.c_str(), nullptr, 10);
         } // unsigned types
         else if (std::is_same<T, unsigned char>::value || std::is_same<T, unsigned short>::value ||
                  std::is_same<T, unsigned int>::value ||
                  std::is_same<T, unsigned long>::value || std::is_same<T, unsigned long long>::value) {
-            return (T) strtoull(str.c_str(), nullptr, 10);
+            return (T) std::strtoull(str.c_str(), nullptr, 10);
         } // double
         else if (std::is_same<T, double>::value) {
-            return strtod(str.c_str(), nullptr);
+            return std::strtod(str.c_str(), nullptr);
         } // float
         else if (std::is_same<T, float>::value) {
-            return strtof(str.c_str(), nullptr);
+            return std::strtof(str.c_str(), nullptr);
         } // long double
         else if (std::is_same<T, long double>::value) {
-            return strtold(str.c_str(), nullptr);
+            return std::strtold(str.c_str(), nullptr);
         } // bool
         else if (std::is_same<T, bool>::value) {
             if (str == "true" || str == "1" || str == "True" || str == "TRUE")
@@ -291,7 +294,6 @@ inline std::ostream& operator<<(std::ostream &os, const std::map<K, V> &map) {
  */
 template<typename T>
 inline T bswap(T x) {
-    static_assert(std::is_integral<T>::value, "bswap only works on integer types");
     if (std::is_same<T, int8_t>::value || std::is_same<T, uint8_t>::value) {
         return (T) x;
     } else if (std::is_same<T, int16_t>::value || std::is_same<T, uint16_t>::value) {
@@ -300,6 +302,8 @@ inline T bswap(T x) {
         return (T) __bswap_32((uint32_t) x);
     } else if (std::is_same<T, int64_t>::value || std::is_same<T, uint64_t>::value) {
         return (T) __bswap_64((uint64_t) x);
+    } else {
+        return (T) x;
     }
 }
 

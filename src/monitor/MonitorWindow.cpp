@@ -8,10 +8,8 @@ MonitorWindow::MonitorWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &MonitorWindow::update_ui);
     timer->start(50);
-    camera_enabled = true;
     monitor::window = this;
     modified = false;
-    camera_enabled = true;
     this->installEventFilter(this);
 }
 
@@ -96,10 +94,6 @@ void MonitorWindow::setPing(int ping) {
     this->modified = true;
 }
 
-bool MonitorWindow::cameraEnabled() const {
-    return camera_enabled;
-}
-
 void MonitorWindow::clear_ui() {
     ui->status->setText("disconnected");
     ui->address->setEnabled(true);
@@ -137,17 +131,6 @@ void MonitorWindow::on_connection_clicked() {
         ui->connection->setEnabled(true);
     } else {
         disconnect();
-    }
-}
-
-void MonitorWindow::on_camera_clicked() {
-    monitor::send_control('c');
-    if (ui->camera->text() == "disable") {
-        ui->camera->setText("enable");
-        camera_enabled = false;
-    } else {
-        ui->camera->setText("disable");
-        camera_enabled = true;
     }
 }
 

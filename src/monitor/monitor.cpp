@@ -45,33 +45,30 @@ static void transceiver() {
             }
         }
 
-        // read image from getNetwork if camera enabled
-        if (window->cameraEnabled()) {
-            // read size of compressed image from frame
-            RECV(sck, &n, sizeof(n), err);
-            if (err) {
-                window->setMessage(err.message());
-            }
-            n = ntohl(n);
-
-            // read image from getNetwork
-            buffer.reserve(n);
-            RECV(sck, buffer.data(), n, err);
-            if (err) {
-                window->setMessage(err.message());
-            }
-
-            cv::imdecode(buffer, cv::IMREAD_COLOR, &tmp);
-            window->setFrameSize(tmp.size[1], tmp.size[0]);
-            cv::resize(tmp, scaled, cv::Size(640, 480));
-            cv::cvtColor(scaled, frame, cv::COLOR_RGB2BGR);
-            window->setFrame(frame);
+        // read size of compressed image from frame
+        RECV(sck, &n, sizeof(n), err);
+        if (err) {
+            window->setMessage(err.message());
         }
+        n = ntohl(n);
+
+        // read image from getNetwork
+        buffer.reserve(n);
+        RECV(sck, buffer.data(), n, err);
+        if (err) {
+            window->setMessage(err.message());
+        }
+
+        cv::imdecode(buffer, cv::IMREAD_COLOR, &tmp);
+        window->setFrameSize(tmp.size[1], tmp.size[0]);
+        cv::resize(tmp, scaled, cv::Size(640, 480));
+        cv::cvtColor(scaled, frame, cv::COLOR_RGB2BGR);
+        window->setFrame(frame);
 
         const std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
         const uint64_t elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
 
-        if (i >= 5 && window->cameraEnabled()) {
+        if (i >= 5) {
             window->setFPS(static_cast<int>(UINT64_C(1000) / elapsed_time));
             const int data_rate = static_cast<unsigned int>(double(n) / double(elapsed_time) * 1000.0);
             window->setDataRate(data_rate);

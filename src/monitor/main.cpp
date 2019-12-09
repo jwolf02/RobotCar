@@ -6,5 +6,5 @@ int main(int argc, char *argv[]) {
     MonitorWindow w;
     w.show();
 
-    return a.exec();
+    return QApplication::exec();
 }

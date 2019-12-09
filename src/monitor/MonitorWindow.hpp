@@ -32,8 +32,6 @@ public:
 
     void setPing(int ping);
 
-    bool cameraEnabled() const;
-
 protected:
     bool eventFilter(QObject *o, QEvent *e) override;
 
@@ -42,8 +40,6 @@ private slots:
 
 private slots:
     void on_connection_clicked();
-
-    void on_camera_clicked();
 
     void on_recording_clicked();
 
@@ -75,8 +71,6 @@ private:
     int ping = 0;
 
     std::string msg;
-
-    std::atomic_bool camera_enabled;
 
 };
 

@@ -17,23 +17,32 @@ IN3=19
 IN4=26
 ENB=21
 
-CLASSES=/home/jwolf/Projects/RobotCar/resources/coco_classes.txt
+PROJECT_DIR=/home/jwolf/Projects/RobotCar
+
+CLASSES=[PROJECT_DIR]/resources/coco_classes.txt
 
 # Output blob types
 # 0: CV_8U
 # 4: CV_32F
 DEPTH=0
 
+# model directory
+MODEL_DIR=[PROJECT_DIR]/models
+
 # YOLO-v3 files
-MODEL=/home/jwolf/Projects/RobotCar/models/yolov3-tiny.weights
-CONFIG=/home/jwolf/Projects/RobotCar/models/yolov3-tiny.cfg
-FRAMEWORK=darknet
-SCALE=0.00392
+YOLO_MODEL=[MODEL_DIR]/yolov3-tiny.weights
+YOLO_CONFIG=[MODEL_DIR]/yolov3-tiny.cfg
+YOLO_FRAMEWORK=darknet
+YOLO_SCALE=0.00392
 
 # SSD Mobilnet v2 files
-#MODEL=/home/jwolf/Projects/RobotCar/models/frozen_inference_graph.pb
-#CONFIG=/home/jwolf/Projects/RobotCar/models/ssd_mobilenet_v2_coco_2018_03_29.pbtxt
-#FRAMEWORK=tensorflow
+SSD_MODEL=[MODEL_DIR]/frozen_inference_graph.pb
+SSD_CONFIG=[MODEL_DIR]/ssd_mobilenet_v2_coco_2018_03_29.pbtxt
+SSD_FRAMEWORK=tensorflow
+SSD_SCALE=1.0
+
+# set used network
+NET=YOLO
 
 # OpenCV DNN
 # getBackend     Choose one of computation backends
@@ -50,3 +59,4 @@ BACKEND=0
 TARGET=0
 THRESHOLD=0.5
 NMS_THRESHOLD=0.4
+

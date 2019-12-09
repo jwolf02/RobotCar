@@ -46,13 +46,14 @@ int main(int argc, const char *argv[]) {
 
     std::cout << "OpenCV " << cv::getVersionString() << std::endl;
 
-    // load variables from config
+    // general parameters
     const int port = config::get_as<int>("PORT");
     const int width = config::get_as<int>("WIDTH");
     const int height = config::get_as<int>("HEIGHT");
     const int r_speed = config::get_as<int>("ROTATION_SPEED");
     const int d_speed = config::get_as<int>("DRIVE_SPEED");
 
+    // L298N H-Bridge pins
     const int ENA = config::get_as<int>("ENA");
     const int IN1 = config::get_as<int>("IN1");
     const int IN2 = config::get_as<int>("IN2");
@@ -60,16 +61,19 @@ int main(int argc, const char *argv[]) {
     const int IN4 = config::get_as<int>("IN4");
     const int ENB = config::get_as<int>("ENB");
 
-    const std::string model = config::get("MODEL");
-    const std::string config = config::get("CONFIG");
-    const std::string framework = config::get_or_default<std::string>("FRAMEWORK", "");
-
+    // object detector parameters
+    const std::string net = config::get("NET");
+    const std::string model = config::get(net + "_MODEL");
+    const std::string config = config::get(net + "_CONFIG");
+    const std::string framework = config::get_or_default<std::string>(net + "_FRAMEWORK", "");
+    const float scale = config::get_or_default(net  + "_SCALE", 1.0f);
     const int backend = config::get_or_default<int>("BACKEND", 0);
     const int target = config::get_or_default<int>("TARGET", 0);
     const auto threshold = config::get_as<float>("THRESHOLD");
     const auto nms_threshold = config::get_as<float>("NMS_THRESHOLD");
-    const auto scale = config::get_or_default<float>("SCALE", 1.0f);
     const int ddepth = config::get_or_default<int>("DEPTH", 0);
+
+    std::cout << "Object Detector: " << net << std::endl;
 
     // setup H-Bridge
     L298NHBridge bridge(ENA, IN1, IN2, IN3, IN4, ENB);
@@ -102,16 +106,15 @@ int main(int argc, const char *argv[]) {
 
     // check if list of classes can be loaded
     std::vector<std::string> classes;
-    if (config::contains("CLASSES")) {
-        std::ifstream file(config::get("CLASSES"));
-        if (file) {
-            std::string line;
-            while (std::getline(file, line, '\n')) {
-                classes.push_back(line);
-            }
-            file.close();
+    std::ifstream file(config::get("CLASSES"));
+    if (file) {
+        std::string line;
+        while (std::getline(file, line, '\n')) {
+            classes.push_back(line);
         }
+        file.close();
     }
+
     detector.setClasses(classes);
 
     // setup boost socket

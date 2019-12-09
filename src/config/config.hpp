@@ -2,7 +2,6 @@
 #define __CONFIG_HPP
 
 #include <string>
-#include <vector>
 #include <common.hpp>
 
 namespace config {
@@ -50,7 +49,7 @@ namespace config {
      * @param key
      * @return
      */
-    std::string get(const std::string &key);
+    std::string& get(const std::string &key);
 
     /***
      * auto convert value to specicfied type, type must be
