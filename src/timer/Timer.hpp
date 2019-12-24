@@ -20,6 +20,8 @@ public:
         BOOTTIME_CLOCK = CLOCK_BOOTTIME
     };
 
+    // factor values to determine the units in which the time is given
+    // by default MILLISECONDS
     enum {
         NANOSECONDS = 1000000000,
         MICROSECONDS = 1000000,
@@ -90,7 +92,7 @@ public:
      * get the number of missed invocations
      * @return
      */
-    uint32_t overruns() const;
+    uint32_t getOverruns() const;
 
     /***
      * get the interval time

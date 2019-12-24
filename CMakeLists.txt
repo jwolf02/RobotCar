@@ -22,10 +22,10 @@ endif()
 
 # modules
 add_subdirectory(src/util)
-add_subdirectory(src/socket)
 add_subdirectory(src/config)
 add_subdirectory(src/driver)
 add_subdirectory(src/timer)
+add_subdirectory(src/cv)
 add_subdirectory(src/monitor)
 add_subdirectory(src/host)
 

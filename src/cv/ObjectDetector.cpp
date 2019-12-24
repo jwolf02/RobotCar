@@ -74,6 +74,7 @@ void ObjectDetector::setClasses(const std::vector<std::string> &classes) {
 }
 
 std::vector<Prediction> ObjectDetector::run(const cv::Mat &frame) {
+    frame(cv::Rect(100, 100, 100, 100));
     CV_Assert(!frame.empty());
     preprocess(frame);
     std::vector<cv::Mat> outs;

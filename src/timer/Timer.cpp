@@ -1,4 +1,4 @@
-#include "Timer.hpp"
+#include <Timer.hpp>
 #include <ctime>
 #include <csignal>
 #include <stdexcept>
@@ -56,7 +56,7 @@ Timer::~Timer() {
     stop();
 }
 
-Timer& Timer::operator=(Timer && timer) noexcept {
+Timer& Timer::operator=(Timer &&timer) noexcept {
     swap(timer);
     return *this;
 }
@@ -92,7 +92,7 @@ void Timer::stop() {
     }
 }
 
-uint32_t Timer::overruns() const {
+uint32_t Timer::getOverruns() const {
     return timer_getoverrun(_timer);
 }
 
