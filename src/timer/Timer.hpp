@@ -6,6 +6,13 @@
 #include <cstdint>
 #include <ctime>
 #include <chrono>
+#include <csignal>
+
+// macro to auto convert to microseconds
+#define SECONDS(x)          ((x) * 1000000)
+#define MILLISECONDS(x)     ((x) * 1000)
+#define MICROSECONDS(x)     (x)
+#define NANOSECONDS(x)      ((x) / 1000)
 
 /***
  * Wrapper class around POSIX timers
@@ -20,14 +27,16 @@ public:
         BOOTTIME_CLOCK = CLOCK_BOOTTIME
     };
 
-    // factor values to determine the units in which the time is given
-    // by default MILLISECONDS
-    enum {
-        NANOSECONDS = 1000000000,
-        MICROSECONDS = 1000000,
-        MILLISECONDS = 1000,
-        SECONDS = 1
-    };
+    /***
+     * create a single shot timer, which calls its handler after expire_time
+     * and then gets deleted automatically
+     * a timer created this way can neither be stopped or gets its time changed
+     * @param func handler to be called upon expiration
+     * @param expire_time in usec
+     * @param clockid
+     */
+    static void singleShot(const std::function<void (void)> &func, uint64_t expire_time,
+                                int signum=SIGALRM, int clockid=MONOTONIC_CLOCK);
 
     /// default constructor
     Timer() = default;
@@ -36,13 +45,12 @@ public:
      * create new timer, when expire time is reached, handler is called
      * if interval_time is not zero, then this is repeated again
      * @param func handler function
-     * @param expire_time time until first expiration
+     * @param expire_time time until first expiration in usec
      * @param interval_time repeated expiration time
      * @param clockid clock type
-     * @param factor how times are interpreted
      */
     Timer(std::function<void (void)> &&func, uint64_t expire_time, uint64_t interval_time=0,
-            int clockid=MONOTONIC_CLOCK, int factor=MILLISECONDS);
+            int signum=SIGALRM, int clockid=MONOTONIC_CLOCK);
 
     /// prevent timer copy
     Timer(const Timer &timer) = delete;
@@ -69,19 +77,18 @@ public:
     Timer& operator=(Timer &&timer) noexcept;
 
     /***
-     * get the time until expiration
-     * @param factor how times are interpreted
+     * get the time until expiration in usec
      * @return
      */
-    uint64_t getTimeUntilExpiration(int factor=MILLISECONDS) const;
+    uint64_t getTimeUntilExpiration() const;
 
     /***
      * change time on timer
-     * @param expire_time time till first expiration
-     * @param interval_time
+     * @param expire_time time till first expiration in usec
+     * @param interval_time in usec
      * @param factor how times are interpreted
      */
-    void setTime(uint64_t expire_time, uint64_t interval_time=0, int factor=MILLISECONDS);
+    void setTime(uint64_t expire_time, uint64_t interval_time=0);
 
     /***
      * delete timer
@@ -95,11 +102,11 @@ public:
     uint32_t getOverruns() const;
 
     /***
-     * get the interval time
+     * get the interval time in usec
      * @param factor how times are interpreted
      * @return
      */
-    uint64_t getIntervalTime(int factor=MILLISECONDS) const;
+    uint64_t getIntervalTime() const;
 
     /***
      * call the handler
@@ -114,11 +121,11 @@ public:
 
 private:
 
-    std::function<void (void)> _handler; // handler to be called opon expiration
+    std::function<void (void)> _handler; // handler to be called upon expiration
 
     timer_t _timer = nullptr; // basic handle for POSIX timers
 
-    uint64_t _interval_time = 0; // repetition time
+    uint64_t _interval_time = 0; // repetition time in nsec
 
 };
 

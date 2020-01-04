@@ -1,12 +1,14 @@
 
-set(DRIVER_SOURCES		${CMAKE_CURRENT_SOURCE_DIR}/L298NHBridge.hpp
-                        ${CMAKE_CURRENT_SOURCE_DIR}/HC_SR04.hpp
-                        ${CMAKE_CURRENT_SOURCE_DIR}/gpio.hpp
-                        ${CMAKE_CURRENT_SOURCE_DIR}/sys_gpio.hpp
-                        ${CMAKE_CURRENT_SOURCE_DIR}/L298NHBridge.cpp
-                        ${CMAKE_CURRENT_SOURCE_DIR}/HC_SR04.cpp
-                        ${CMAKE_CURRENT_SOURCE_DIR}/sys_gpio.cpp
-                        ${CMAKE_CURRENT_SOURCE_DIR}/gpio.cpp)
+set(DRIVER_SOURCES		L298NHBridge.hpp
+                        L298NHBridge.cpp
+                        HC_SR04.hpp
+                        HC_SR04.cpp
+                        gpio.hpp
+                        gpio.cpp
+                        sys_gpio.hpp
+                        sys_gpio.cpp
+                        SPIDev.hpp
+                        SPIDev.cpp)
 
 set(Driver_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
 

@@ -12,12 +12,12 @@ if (NOT (RASPBERRY_PI OR JETSON_NANO))
     include_directories(${Qt5Widgets_INCLUDES})
     add_definitions(${Qt5Widgets_DEFINITIONS})
 
-    set(MONITOR_SOURCES		${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
-                            ${CMAKE_CURRENT_SOURCE_DIR}/MonitorWindow.hpp
-                            ${CMAKE_CURRENT_SOURCE_DIR}/MonitorWindow.cpp
-                            ${CMAKE_CURRENT_SOURCE_DIR}/MonitorWindow.ui
-                            ${CMAKE_CURRENT_SOURCE_DIR}/monitor.cpp
-                            ${CMAKE_CURRENT_SOURCE_DIR}/monitor.hpp)
+    set(MONITOR_SOURCES		main.cpp
+                            MonitorWindow.hpp
+                            MonitorWindow.cpp
+                            MonitorWindow.ui
+                            monitor.cpp
+                            monitor.hpp)
 
     # monitor executable
     add_executable(rcmonitor-ui ${MONITOR_SOURCES})

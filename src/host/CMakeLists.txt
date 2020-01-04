@@ -2,7 +2,7 @@
 find_package(OpenCV REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system)
 
-set(HOST_SOURCES            ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
+set(HOST_SOURCES            main.cpp)
 
 # host executable
 add_executable(rchost ${HOST_SOURCES})

@@ -1,6 +1,6 @@
 
-set(CONFIG_SOURCES      ${CMAKE_CURRENT_SOURCE_DIR}/config.hpp
-                        ${CMAKE_CURRENT_SOURCE_DIR}/config.cpp)
+set(CONFIG_SOURCES      config.hpp
+                        config.cpp)
 
 set(Config_INCLUDE_DIR  ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
 
