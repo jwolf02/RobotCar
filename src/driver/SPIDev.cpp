@@ -20,9 +20,6 @@ static int _open(const char *fname, int mode) {
     return open(fname, mode);
 }
 
-
-const std::string DEFAULT_DEVICE = "/dev/spidev0.0";
-
 SPIDev::SPIDev(const std::string &fname, uint32_t mode) {
     open(fname, mode);
 }

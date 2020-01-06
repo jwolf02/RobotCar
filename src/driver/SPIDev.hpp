@@ -11,11 +11,6 @@
 class SPIDev {
 public:
 
-    /// default values
-    static const std::string DEFAULT_DEVICE;
-    static constexpr uint32_t DEFAULT_SPEED = 500000;
-    static constexpr uint32_t DEFAULT_BITS_PER_WORD = 8;
-
     /// default contructor
     SPIDev() = default;
 
