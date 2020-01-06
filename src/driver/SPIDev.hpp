@@ -14,8 +14,8 @@ public:
     /// default contructor
     SPIDev() = default;
 
-    /// constructor, wrapper around open
-    explicit SPIDev(const std::string &fname, uint32_t mode=0);
+    /// constructor, wrapper around open, can set various values if non-zero
+    explicit SPIDev(const std::string &fname, uint32_t mode=0, uint32_t speed=0, uint32_t delay=0, uint32_t bpw=0);
 
     /// destructor
     ~SPIDev();

@@ -20,8 +20,17 @@ static int _open(const char *fname, int mode) {
     return open(fname, mode);
 }
 
-SPIDev::SPIDev(const std::string &fname, uint32_t mode) {
+SPIDev::SPIDev(const std::string &fname, uint32_t mode, uint32_t speed, uint32_t delay, uint32_t bpw) {
     open(fname, mode);
+    if (speed != 0) {
+        setSpeed(speed);
+    }
+    if (delay != 0) {
+        setDelay(delay);
+    }
+    if (bpw != 0) {
+        setBitsPerWord(bpw);
+    }
 }
 
 SPIDev::~SPIDev() {
