@@ -28,7 +28,3 @@ add_subdirectory(src/timer)
 add_subdirectory(src/cv)
 add_subdirectory(src/monitor)
 add_subdirectory(src/host)
-
-# install programs
-install(TARGETS rcmonitor-ui DESTINATION /usr/bin OPTIONAL)
-install(TARGETS rchost DESTINATION /usr/bin OPTIONAL)
