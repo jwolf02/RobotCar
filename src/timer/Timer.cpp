@@ -109,13 +109,3 @@ void Timer::swap(Timer &timer) {
     std::swap(timer._handler, _handler);
     std::swap(timer._interval_time, _interval_time);
 }
-
-#include <iostream>
-
-int main() {
-
-    Timer::singleShot([]{ std::cout << "Hello World" << std::endl; }, SECONDS(2));
-
-    while (true)
-        pause();
-}
