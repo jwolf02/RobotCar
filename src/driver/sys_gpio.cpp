@@ -4,10 +4,16 @@
 #include <stdexcept>
 #include <unordered_map>
 #include <fstream>
+#include "sys_gpio.hpp"
+
 
 #define SYSFS_GPIO_DIR "/sys/class/gpio"
 
+// mapping of pin number to file descriptor
 static std::unordered_map<int, int> _pins;
+
+// mapping of pin numbers to file descriptors for PWM pins
+static std::unordered_map<int, int> _pwms;
 
 static void gpio_export(int gpio) {
     const std::string str = SYSFS_GPIO_DIR "/gpio" + std::to_string(gpio);
@@ -108,4 +114,22 @@ int digitalRead(int pin) {
     }
 
     return (int) ch;
+}
+
+int pwmCreate(int pin) {
+
+
+    return 0;
+}
+
+int pwmSetPeriod(int pin, int period) {
+    return 0;
+}
+
+int pwmSetDutyCycle(int pin, int duty_cycle) {
+    return 0;
+}
+
+int pwmEnable(int pint, bool val) {
+    return 0;
 }

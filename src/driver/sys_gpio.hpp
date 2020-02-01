@@ -17,6 +17,4 @@ int digitalWrite(int pin, int value);
 
 int digitalRead(int pin);
 
-int setIsr(int pin, int edge_type, const std::function<void (int pin)> &callback);
-
 #endif // _SYS_GPIO_HPP

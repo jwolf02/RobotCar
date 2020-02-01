@@ -8,7 +8,7 @@ set(DRIVER_SOURCES		L298NHBridge.hpp
                         sys_gpio.hpp
                         sys_gpio.cpp
                         SPIDev.hpp
-                        SPIDev.cpp)
+                        SPIDev.cpp sys_pwm.hpp sys_pwm.cpp)
 
 set(Driver_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
 
