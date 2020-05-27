@@ -2,7 +2,9 @@
 find_package(OpenCV REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system)
 
-set(HOST_SOURCES            main.cpp)
+set(HOST_SOURCES            ../cv/VideoStreamer.cpp
+                            ../cv/VideoStreamer.hpp
+                            main.cpp)
 
 # host executable
 add_executable(rchost ${HOST_SOURCES})

@@ -1,45 +1,37 @@
 #ifndef __VIDEOSTREAMER_HPP
 #define __VIDEOSTREAMER_HPP
 
-#include <thread>
-#include <fstream>
+#include <vector>
 #include <opencv2/opencv.hpp>
-#include <boost/asio.hpp>
+#include <ServerSocket.hpp>
+#include <Socket.hpp>
 
 class VideoStreamer {
 public:
 
     VideoStreamer() = default;
 
-    VideoStreamer(int fourcc, double fps, const cv::Size &framesize, int port, bool isColor=true);
+    VideoStreamer(int port);
 
     ~VideoStreamer();
+
+    void waitForConnection();
 
     VideoStreamer& operator<<(const cv::Mat &frame);
 
     bool write(const cv::Mat &frame);
 
-    bool isOpened() const;
+    void close();
 
     bool isConnected() const;
 
 private:
 
-    void send_to_receiver();
+    ServerSocket _server;
 
-    std::thread _thread;
+    Socket _socket;
 
-    cv::VideoWriter _writer;
-
-    std::ifstream _ipipe;
-
-    boost::asio::ip::tcp::acceptor *_acceptor = nullptr;
-
-    boost::asio::ip::tcp::socket *_socket = nullptr;
-
-    volatile bool _flag = false;
-
-    volatile bool _connected = false;
+    std::vector<unsigned char> _buffer;
 
 };
 

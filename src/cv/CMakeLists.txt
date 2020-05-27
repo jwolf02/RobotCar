@@ -3,7 +3,7 @@ find_package(OpenCV REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system)
 
 set(CV_SOURCES              ObjectDetector.hpp
-                            ObjectDetector.cpp)
+                            ObjectDetector.cpp VideoReceiver.hpp VideoReceiver.cpp)
 
 set(CV_INCLUDE_DIR          ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
 

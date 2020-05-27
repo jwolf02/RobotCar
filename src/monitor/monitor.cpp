@@ -34,7 +34,6 @@ static void transceiver() {
     int i = 0;
 
     while (!terminate) {
-        const std::chrono::system_clock::time_point begin = std::chrono::system_clock::now();
         // if user has entered a control command
         // send it to host
         const char c = control.exchange(0x00);
@@ -45,37 +44,40 @@ static void transceiver() {
             }
         }
 
-        // read size of compressed image from frame
-        RECV(sck, &n, sizeof(n), err);
-        if (err) {
-            window->setMessage(err.message());
-        }
-        n = ntohl(n);
+        if (sck.available()) {
+            const std::chrono::system_clock::time_point begin = std::chrono::system_clock::now();
+            // read size of compressed image from frame
+            RECV(sck, &n, sizeof(n), err);
+            if (err) {
+                window->setMessage(err.message());
+            }
+            n = ntohl(n);
 
-        // read image from getNetwork
-        buffer.reserve(n);
-        RECV(sck, buffer.data(), n, err);
-        if (err) {
-            window->setMessage(err.message());
-        }
+            // read image from getNetwork
+            buffer.reserve(n);
+            RECV(sck, buffer.data(), n, err);
+            if (err) {
+                window->setMessage(err.message());
+            }
 
-        cv::imdecode(buffer, cv::IMREAD_COLOR, &tmp);
-        window->setFrameSize(tmp.size[1], tmp.size[0]);
-        cv::resize(tmp, scaled, cv::Size(640, 480));
-        cv::cvtColor(scaled, frame, cv::COLOR_RGB2BGR);
-        window->setFrame(frame);
+            cv::imdecode(buffer, cv::IMREAD_COLOR, &tmp);
+            window->setFrameSize(tmp.size[1], tmp.size[0]);
+            cv::resize(tmp, scaled, cv::Size(640, 480));
+            cv::cvtColor(scaled, frame, cv::COLOR_RGB2BGR);
+            window->setFrame(frame);
 
-        const std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
-        const uint64_t elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+            const std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
+            const uint64_t elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
 
-        if (i >= 5) {
-            window->setFPS(static_cast<int>(UINT64_C(1000) / elapsed_time));
-            const int data_rate = static_cast<unsigned int>(double(n) / double(elapsed_time) * 1000.0);
-            window->setDataRate(data_rate);
-            window->setPing((n * UINT32_C(1000)) / data_rate);
-            i = 0;
-        } else {
-            i++;
+            if (i >= 5) {
+                window->setFPS(static_cast<int>(UINT64_C(1000) / elapsed_time));
+                const int data_rate = static_cast<unsigned int>(double(n) / double(elapsed_time) * 1000.0);
+                window->setDataRate(data_rate);
+                window->setPing((n * UINT32_C(1000)) / data_rate);
+                i = 0;
+            } else {
+                i++;
+            }
         }
     }
 }
@@ -107,8 +109,11 @@ void monitor::send_control(char ctl) {
 
 void monitor::disconnect() {
     if (connected) {
-        if (sck.is_open())
+        if (sck.is_open()) {
+            send_control('x');
+            std::this_thread::sleep_for(std::chrono::milliseconds(150));
             sck.close();
+        }
         terminate = true;
         t.join();
     }

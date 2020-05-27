@@ -44,15 +44,22 @@ void MonitorWindow::update_ui() {
     }
 }
 
+static std::set<char> _keySet = { 'q', 'w', 's', 'a', 'd', 'x' };
+
 bool MonitorWindow::eventFilter(QObject *o, QEvent *e) {
     if (e->type() == QEvent::KeyPress) {
-        const auto k = std::tolower((char) (dynamic_cast<QKeyEvent*>(e)->key() & 0xff));
-        monitor::send_control(k);
-        if (k == 'x' && ui->status->text() == "connected")
-            disconnect();
+        auto* keyEvent = dynamic_cast<QKeyEvent*>(e);
+        char k = std::tolower((char) (keyEvent->key() & 0xff));
+        if (_keySet.find(k) != _keySet.end()) {
+            std::cout << (char) k << std::endl;
+            monitor::send_control(k);
+            if (k == 'x' && ui->status->text() == "connected")
+                disconnect();
+        }
         return true;
+    } else {
+        return  QObject::eventFilter(o, e);
     }
-    return false;
 }
 
 void MonitorWindow::setFPS(int fps) {

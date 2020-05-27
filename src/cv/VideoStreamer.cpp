@@ -1,42 +1,40 @@
 #include <VideoStreamer.hpp>
-#include <boost/asio.hpp>
-#include <opencv2/core.hpp>
-#include <fstream>
+#include <ros/
 
-#define BUFFER_SIZE         (1024)
+VideoStreamer::VideoStreamer(int port) {
+    _server = ServerSocket(port);
+}
 
-VideoStreamer::VideoStreamer(int fourcc, double fps, const cv::Size &framesize, int port, bool isColor) {
-    _writer.open("", fourcc, fps, framesize, isColor);
-    _thread = std::thread(&VideoStreamer::send_to_receiver, this);
+void VideoStreamer::waitForConnection() {
+    _socket = _server.wait_for_connection();
 }
 
 VideoStreamer::~VideoStreamer() {
-    _flag = false;
-    _thread.join();
+    close();
 }
 
-void VideoStreamer::send_to_receiver() {
-
-    std::vector<uint8_t> buffer(BUFFER_SIZE);
-
-    while (_flag) {
-        _ipipe.read((char *) buffer.data(), BUFFER_SIZE);
-        _socket->send(buffer, buffer.size());
-    }
-}
-
-VideoStreamer& VideoStreamer::operator<<(const cv::Mat &frame) {
+VideoStreamer &VideoStreamer::operator<<(const cv::Mat &frame) {
     write(frame);
+    return *this;
 }
 
 bool VideoStreamer::write(const cv::Mat &frame) {
-    _writer.write(frame);
+    CV_Assert(!frame.empty());
+    if (!_socket.is_open()) {
+        return false;
+    }
+    uint32_t n = 0;
+    cv::imencode(".jpeg", frame, _buffer);
+    n = htonl((uint32_t) _buffer.size());
+    return !(_socket.write(&n, sizeof(n)) != sizeof(n) ||
+             _socket.write(_buffer.data(), _buffer.size()) != _buffer.size());
 }
 
-bool VideoStreamer::isOpened() const {
-    return _writer.isOpened();
+void VideoStreamer::close() {
+    _socket.close();
+    _server.close();
 }
 
 bool VideoStreamer::isConnected() const {
-    return _connected;
+    return _socket.is_open();
 }

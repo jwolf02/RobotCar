@@ -6,6 +6,7 @@ void drawPredictions(cv::Mat &frame, const std::vector<Prediction> &predictions,
                                           const cv::Scalar &color, int thickness, int lineType, int shift)
 {
     CV_Assert(!frame.empty());
+    cv::error()
     for (const auto &pred : predictions) {
         // draw bounding box around object
         cv::rectangle(frame, pred.rect, color, thickness, lineType, shift);
